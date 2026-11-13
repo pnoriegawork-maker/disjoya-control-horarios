@@ -1,0 +1,22 @@
+{
+  "name": "Disjoya Autopartes - Control Horario",
+  "short_name": "Disjoya Horarios",
+  "description": "Sistema de Control Horario, Horas Extras y Asistencia de Disjoya Autopartes SAS",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0F2D3D",
+  "theme_color": "#0F2D3D",
+  "icons": [
+    {
+      "src": "/static/logo_disjoya.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/logo_disjoya.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+

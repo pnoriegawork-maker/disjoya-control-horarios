@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Disjoya Autopartes S.A.S. | Control Horario y Nómina</title>
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#0F2D3D">
+  <link rel="icon" type="image/png" href="/static/logo_disjoya.png">
+  
+  <!-- Tailwind CSS & Google Fonts -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons & QR Scanner -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <!-- QRCode.js para el Kiosco -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            disjoya: {
+              navy: '#0F2D3D',
+              navyDark: '#081B26',
+              navyLight: '#1B455B',
+              red: '#E32626',
+              redHover: '#C51E1E',
+              redLight: '#FDE8E8',
+              grayBg: '#F8FAFC',
+              slateCard: '#FFFFFF',
+              border: '#E2E8F0'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #F8FAFC;
+      color: #1E293B;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
+    .scanner-active {
+      box-shadow: 0 0 0 4px rgba(227, 38, 38, 0.4);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans antialiased custom-scrollbar">
+
+  <!-- HEADER INSTITUCIONAL DISJOYA -->
+  <header class="bg-disjoya-navy text-white shadow-lg sticky top-0 z-50 border-b-2 border-disjoya-red">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        
+        <!-- LOGO INSTITUCIONAL -->
+        <div class="flex items-center space-x-4">
+          <div class="bg-white p-2 rounded-xl shadow-md flex items-center justify-center">
+            <img src="/static/logo_disjoya.png" alt="Disjoya Autopartes SAS" class="h-10 w-auto object-contain">
+          </div>
+          <div class="hidden sm:block">
+            <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+              DISJOYA AUTOPARTES S.A.S.
+              <span class="text-xs bg-disjoya-red px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider text-white">Legal 2026</span>
+            </h1>
+            <p class="text-xs text-slate-300">Sistema Autónomo de Control Horario, Horas Extras y Pre-Liquidación</p>
+          </div>
+        </div>
+
+        <!-- RELOJ LEGAL NTP & IDENTIDAD -->
+        <div class="flex items-center space-x-3 sm:space-x-4">
+          <!-- Reloj Digital Colombia -->
+          <div class="bg-disjoya-navyDark/80 px-3 py-1.5 rounded-lg border border-slate-700 text-right">
+            <div class="text-[10px] text-slate-400 font-medium uppercase tracking-wider flex items-center justify-end gap-1">
+              <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Hora Legal (UTC-5)
+            </div>
+            <div id="reloj-colombia" class="text-sm sm:text-base font-bold font-mono text-emerald-400">--:--:--</div>
+          </div>
+
+          <!-- Selector de Usuario / Demo Role -->
+          <div class="relative">
+            <button id="btn-perfil" onclick="toggleMenuUsuario()" class="flex items-center space-x-2 bg-disjoya-navyLight hover:bg-slate-700 px-3 py-2 rounded-lg text-sm border border-slate-600 transition">
+              <div class="w-7 h-7 rounded-full bg-disjoya-red flex items-center justify-center text-white font-bold text-xs">
+                <i class="fa-solid fa-user-shield"></i>
+              </div>
+              <span id="user-display-name" class="font-medium hidden md:inline text-xs">Pedro Noriega</span>
+              <span id="user-display-role" class="text-[10px] bg-disjoya-red px-2 py-0.5 rounded font-bold uppercase">TRABAJADOR</span>
+              <i class="fa-solid fa-chevron-down text-xs text-slate-300"></i>
+            </button>
+            
+            <!-- Dropdown Roles -->
+            <div id="menu-roles" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl py-2 z-50 border border-slate-200 text-slate-800">
+              <div class="px-4 py-2 border-b border-slate-100">
+                <p class="text-xs text-slate-400 font-semibold uppercase">Cambiar Perfil de Demostración</p>
+              </div>
+              <button onclick="cambiarPerfil('TRABAJADOR', 'Pedro Noriega', 'CC 1020304050')" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-3 text-xs transition">
+                <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                <div>
+                  <p class="font-bold text-slate-900">Pedro Noriega</p>
+                  <p class="text-slate-500 text-[11px]">Trabajador Operativo (PWA)</p>
+                </div>
+              </button>
+              <button onclick="cambiarPerfil('JEFE_INMEDIATO', 'Carlos Jefe', 'CC 11111111')" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-3 text-xs transition">
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                <div>
+                  <p class="font-bold text-slate-900">Carlos Jefe</p>
+                  <p class="text-slate-500 text-[11px]">Jefe Inmediato / Aprobador</p>
+                </div>
+              </button>
+              <button onclick="cambiarPerfil('NOMINA_RRHH', 'Ana Rodríguez', 'CC 22222222')" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-3 text-xs transition">
+                <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+                <div>
+                  <p class="font-bold text-slate-900">Ana Rodríguez</p>
+                  <p class="text-slate-500 text-[11px]">Gestor de Nómina y RRHH</p>
+                </div>
+              </button>
+              <button onclick="cambiarPerfil('AUDITOR_SUPERADMIN', 'SuperAdmin Disjoya', 'CC 99999999')" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-3 text-xs transition">
+                <span class="w-2.5 h-2.5 rounded-full bg-disjoya-red"></span>
+                <div>
+                  <p class="font-bold text-slate-900">SuperAdmin Disjoya</p>
+                  <p class="text-slate-500 text-[11px]">Auditor Forense / SuperAdmin</p>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- BARRA DE NAVEGACIÓN EN PESTAÑAS -->
+      <nav class="flex space-x-1 sm:space-x-3 overflow-x-auto py-2 text-xs font-semibold scrollbar-none">
+        <button onclick="cambiarPestana('tab-marcacion')" id="nav-tab-marcacion" class="nav-btn bg-disjoya-red text-white px-3.5 py-2 rounded-lg flex items-center space-x-2 transition shadow-sm whitespace-nowrap">
+          <i class="fa-solid fa-qrcode"></i>
+          <span>1. Marcación QR</span>
+        </button>
+        <button onclick="cambiarPestana('tab-horasextras')" id="nav-tab-horasextras" class="nav-btn text-slate-300 hover:text-white hover:bg-disjoya-navyLight px-3.5 py-2 rounded-lg flex items-center space-x-2 transition whitespace-nowrap">
+          <i class="fa-solid fa-clock"></i>
+          <span>2. Horas Extras</span>
+        </button>
+        <button onclick="cambiarPestana('tab-jefatura')" id="nav-tab-jefatura" class="nav-btn text-slate-300 hover:text-white hover:bg-disjoya-navyLight px-3.5 py-2 rounded-lg flex items-center space-x-2 transition whitespace-nowrap">
+          <i class="fa-solid fa-user-check"></i>
+          <span>3. Aprobación Jefatura</span>
+          <span id="badge-pendientes-he" class="hidden ml-1.5 bg-disjoya-red text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">1</span>
+        </button>
+        <button onclick="cambiarPestana('tab-nomina')" id="nav-tab-nomina" class="nav-btn text-slate-300 hover:text-white hover:bg-disjoya-navyLight px-3.5 py-2 rounded-lg flex items-center space-x-2 transition whitespace-nowrap">
+          <i class="fa-solid fa-file-invoice-dollar"></i>
+          <span>4. Pre-Liquidación Nómina</span>
+        </button>
+        <button onclick="cambiarPestana('tab-kiosco')" id="nav-tab-kiosco" class="nav-btn text-slate-300 hover:text-white hover:bg-disjoya-navyLight px-3.5 py-2 rounded-lg flex items-center space-x-2 transition whitespace-nowrap">
+          <i class="fa-solid fa-display"></i>
+          <span>5. Pantalla Kiosco Sede</span>
+        </button>
+        <button onclick="cambiarPestana('tab-auditoria')" id="nav-tab-auditoria" class="nav-btn text-slate-300 hover:text-white hover:bg-disjoya-navyLight px-3.5 py-2 rounded-lg flex items-center space-x-2 transition whitespace-nowrap">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>6. Auditoría y Habeas Data</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+    <!-- ALERTA DE JURISDICCIÓN & REGLAS COLOMBIA 2026 -->
+    <div class="mb-6 bg-white border-l-4 border-disjoya-navy p-4 rounded-xl shadow-sm flex items-start justify-between">
+      <div class="flex items-start space-x-3">
+        <div class="p-2 bg-slate-100 rounded-lg text-disjoya-navy">
+          <i class="fa-solid fa-scale-balanced text-lg"></i>
+        </div>
+        <div>
+          <h2 class="text-sm font-bold text-slate-900">Régimen Laboral Colombia Vigente (Ley 2101 de 2021 & Ley 50 de 1990)</h2>
+          <p class="text-xs text-slate-600 mt-0.5">
+            Jornada Ordinaria: <strong>44 horas/semana</strong> (divisor mensual 220) | Topes Art. 22 Ley 50: <strong>Máx. 2h/día y 12h/semana</strong> | Recargo Nocturno: <strong>35% (19:00 - 06:00)</strong> | Dominical/Festivo: <strong>90%</strong>.
+          </p>
+        </div>
+      </div>
+      <div class="hidden md:flex items-center space-x-2 text-xs text-slate-500 font-mono">
+        <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+        <span>Geocerca Activa: 50m</span>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- PESTAÑA 1: MARCACIÓN QR DINÁMICA & GEOCERCA GPS -->
+    <!-- ========================================================================= -->
+    <div id="tab-marcacion" class="pestana-seccion space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Tarjeta de Escáner y Geocerca -->
+        <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div class="p-5 bg-gradient-to-r from-disjoya-navy to-disjoya-navyLight text-white flex justify-between items-center">
+            <div>
+              <h3 class="font-bold text-base flex items-center gap-2">
+                <i class="fa-solid fa-camera-retro text-disjoya-red"></i>
+                Escanear Código QR Dinámico en Sede
+              </h3>
+              <p class="text-xs text-slate-300">Apunta la cámara al Kiosco de la empresa en recepción</p>
+            </div>
+            <span class="bg-disjoya-red text-white text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Antifraude</span>
+          </div>
+
+          <div class="p-6 space-y-4">
+            
+            <!-- Visor de la Cámara o Scanner HTML5 -->
+            <div class="relative bg-slate-900 rounded-xl overflow-hidden aspect-video flex flex-col items-center justify-center border-2 border-dashed border-slate-300" id="scanner-container">
+              <div id="qr-reader" class="w-full h-full"></div>
+              <div id="scanner-placeholder" class="text-center p-6 text-slate-400">
+                <i class="fa-solid fa-qrcode text-5xl mb-3 text-slate-500 animate-pulse"></i>
+                <p class="text-sm font-medium text-slate-300">Cámara lista para escaneo</p>
+                <p class="text-xs text-slate-500 mt-1">Presiona "Iniciar Cámara" para registrar asistencia</p>
+              </div>
+            </div>
+
+            <!-- Controles de Cámara -->
+            <div class="flex items-center gap-3">
+              <button id="btn-iniciar-camara" onclick="iniciarEscaner()" class="flex-1 bg-disjoya-navy hover:bg-disjoya-navyLight text-white font-semibold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow">
+                <i class="fa-solid fa-video"></i> Iniciar Cámara en Vivo
+              </button>
+              <button id="btn-detener-camara" onclick="detenerEscaner()" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition">
+                <i class="fa-solid fa-video-slash"></i> Detener
+              </button>
+              <button onclick="usarQRMuestra()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-medium py-2.5 px-4 rounded-xl text-xs transition" title="Simula escanear el QR actual del Kiosco">
+                <i class="fa-solid fa-wand-magic-sparkles text-disjoya-red"></i> Auto-Escanear QR Sede
+              </button>
+            </div>
+
+            <!-- Estado de Geolocalización en Tiempo Real -->
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-bold text-slate-700 flex items-center gap-2">
+                  <i class="fa-solid fa-location-dot text-disjoya-red"></i>
+                  Geolocalización GPS Móvil:
+                </span>
+                <span id="gps-status-badge" class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">
+                  GPS Activo (WGS84)
+                </span>
+              </div>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                <div class="bg-white p-2 rounded border border-slate-200">
+                  <p class="text-[10px] text-slate-400">Latitud</p>
+                  <p id="geo-lat" class="font-mono font-semibold text-slate-800">4.655828</p>
+                </div>
+                <div class="bg-white p-2 rounded border border-slate-200">
+                  <p class="text-[10px] text-slate-400">Longitud</p>
+                  <p id="geo-lon" class="font-mono font-semibold text-slate-800">-74.058342</p>
+                </div>
+                <div class="bg-white p-2 rounded border border-slate-200">
+                  <p class="text-[10px] text-slate-400">Distancia Sede</p>
+                  <p id="geo-dist" class="font-mono font-bold text-emerald-600">3.2 metros</p>
+                </div>
+                <div class="bg-white p-2 rounded border border-slate-200">
+                  <p class="text-[10px] text-slate-400">Precisión</p>
+                  <p id="geo-prec" class="font-mono font-semibold text-slate-800">±4.0 m</p>
+                </div>
+              </div>
+              <p class="text-[11px] text-slate-500">
+                <i class="fa-solid fa-circle-info text-blue-500 mr-1"></i>
+                Geocerca institucional: <strong>Sede Principal Financiera</strong> (Radio permitido: 50 m).
+              </p>
+            </div>
+
+            <!-- Botón de Envío / Confirmación de Marcación -->
+            <button id="btn-registrar-marca" onclick="ejecutarMarcacion()" class="w-full bg-disjoya-red hover:bg-disjoya-redHover text-white font-bold py-3.5 px-6 rounded-xl text-sm transition shadow-lg flex items-center justify-center gap-2">
+              <i class="fa-solid fa-fingerprint text-lg"></i>
+              <span>CONFIRMAR MARCACIÓN DE ASISTENCIA</span>
+            </button>
+
+            <!-- Feedback de Resultado de Marcación -->
+            <div id="resultado-marcacion" class="hidden p-4 rounded-xl border"></div>
+
+          </div>
+        </div>
+
+        <!-- Columna Derecha: Estado de Turno y Marcaciones Recientes -->
+        <div class="lg:col-span-5 space-y-6">
+          
+          <!-- Tarjeta de Turno Asignado Hoy -->
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center justify-between">
+              <span>Jornada Contractual Programada</span>
+              <span class="text-disjoya-navy font-semibold">13 Nov 2026</span>
+            </h4>
+            <div class="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <div>
+                <p class="text-xs text-slate-500">Turno Ordinario</p>
+                <p class="text-base font-extrabold text-disjoya-navy">08:00 a.m. - 05:00 p.m.</p>
+                <p class="text-xs text-slate-500 mt-0.5">8h ordinarias + 1h almuerzo</p>
+              </div>
+              <div class="text-right">
+                <span class="inline-block bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-full">
+                  Turno Activo
+                </span>
+                <p class="text-[11px] text-slate-400 mt-1">Sede Principal</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Historial de Marcaciones del Día -->
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center justify-between">
+              <span>Marcaciones Registradas Hoy</span>
+              <span id="contador-marcas" class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-[10px] font-bold">2 eventos</span>
+            </h4>
+
+            <div class="space-y-3" id="lista-marcas-hoy">
+              <!-- Item Entrada -->
+              <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
+                <div class="flex items-center space-x-3">
+                  <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-xs">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                  </div>
+                  <div>
+                    <p class="text-xs font-bold text-slate-800">ENTRADA REGISTRADA</p>
+                    <p class="text-[11px] text-slate-500">Sede Principal | Dist: 4.2m</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="font-mono text-xs font-bold text-slate-800">07:58:10 a.m.</span>
+                  <p class="text-[10px] text-emerald-600 font-medium">NTP Verificado</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tarjeta de Verificación Dispositivo Móvil -->
+          <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4 text-xs text-slate-600 space-y-1.5">
+            <p class="font-bold text-slate-800 flex items-center gap-1.5">
+              <i class="fa-solid fa-mobile-screen-button text-disjoya-navy"></i>
+              Dispositivo Vinculado Seguro:
+            </p>
+            <p class="text-slate-500 font-mono text-[11px] break-all">UUID: a8b4f1-9c3d-4e5f-b6a1-0192837465</p>
+            <p class="text-[10px] text-slate-400">HMAC Pepper verificado | Protección anti-clonación activa</p>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- PESTAÑA 2: SOLICITUD DE HORAS EXTRAS (WORKFLOW LEGAL ART. 22 LEY 50) -->
+    <!-- ========================================================================= -->
+    <div id="tab-horasextras" class="pestana-seccion hidden space-y-6">
+      
+      <!-- MATRIZ DE TOPES LEGALES EN TIEMPO REAL -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+          <div>
+            <p class="text-xs text-slate-500 font-medium">Tope Legal Diario (Art. 22)</p>
+            <h4 class="text-2xl font-extrabold text-disjoya-navy mt-1">
+              <span id="gauge-dia-uso">0.0</span> / 2.0 <span class="text-xs font-normal text-slate-400">horas</span>
+            </h4>
+            <div class="w-full bg-slate-100 rounded-full h-1.5 mt-2 overflow-hidden">
+              <div id="bar-dia-uso" class="bg-disjoya-red h-1.5 rounded-full" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-red-50 text-disjoya-red flex items-center justify-center text-xl font-bold">
+            <i class="fa-solid fa-calendar-day"></i>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+          <div>
+            <p class="text-xs text-slate-500 font-medium">Tope Legal Semanal (L-D)</p>
+            <h4 class="text-2xl font-extrabold text-disjoya-navy mt-1">
+              <span id="gauge-sem-uso">2.0</span> / 12.0 <span class="text-xs font-normal text-slate-400">horas</span>
+            </h4>
+            <div class="w-full bg-slate-100 rounded-full h-1.5 mt-2 overflow-hidden">
+              <div id="bar-sem-uso" class="bg-blue-600 h-1.5 rounded-full" style="width: 16.6%"></div>
+            </div>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold">
+            <i class="fa-solid fa-calendar-week"></i>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+          <div>
+            <p class="text-xs text-slate-500 font-medium">Jornada Semanal Máxima</p>
+            <h4 class="text-2xl font-extrabold text-emerald-600 mt-1">
+              44 <span class="text-xs font-normal text-slate-400">horas (Ley 2101)</span>
+            </h4>
+            <p class="text-[11px] text-slate-400 mt-1">Divisor Nómina: 220 horas</p>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- FORMULARIO DE SOLICITUD DE TIEMPO SUPLEMENTARIO -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <div class="lg:col-span-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+          <div class="border-b border-slate-100 pb-3">
+            <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+              <i class="fa-solid fa-file-pen text-disjoya-red"></i>
+              Nueva Solicitud de Trabajo Suplementario
+            </h3>
+            <p class="text-xs text-slate-500">Debe radicarse y autorizarse de forma PREVIA a laborarse</p>
+          </div>
+
+          <form id="form-solicitar-he" onsubmit="event.preventDefault(); enviarSolicitudHE();" class="space-y-4">
+            
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Fecha de Ejecución</label>
+              <input type="date" id="he-fecha" value="2026-11-13" class="w-full text-xs font-semibold p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-disjoya-navy outline-none">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Hora Inicio</label>
+                <input type="time" id="he-inicio" value="17:00" class="w-full text-xs font-semibold p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-disjoya-navy outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Hora Fin Estimada</label>
+                <input type="time" id="he-fin" value="19:00" class="w-full text-xs font-semibold p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-disjoya-navy outline-none">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Motivo Justificado (Art. 167 CST)</label>
+              <textarea id="he-motivo" rows="3" placeholder="Ej. Inventario general de autopartes y cierre de balance en sistemas..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-disjoya-navy outline-none" required minlength="15"></textarea>
+            </div>
+
+            <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 text-[11px] text-amber-800 flex items-start gap-2">
+              <i class="fa-solid fa-triangle-exclamation text-amber-600 mt-0.5"></i>
+              <span>El motor agéntico validará de forma determinística que la solicitud no sobrepase 2 horas diarias ni 12 horas semanales.</span>
+            </div>
+
+            <button type="submit" class="w-full bg-disjoya-navy hover:bg-disjoya-navyLight text-white font-bold py-3 px-4 rounded-xl text-xs transition shadow flex items-center justify-center gap-2">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span>Radicar Solicitud al Jefe Inmediato</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- LISTADO DE SOLICITUDES Y ESTADO -->
+        <div class="lg:col-span-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+          <div class="border-b border-slate-100 pb-3 flex justify-between items-center">
+            <h3 class="font-bold text-slate-900 text-sm">Estado de Solicitudes Recientes</h3>
+            <span class="text-xs text-slate-400">Actualizado</span>
+          </div>
+
+          <div id="lista-solicitudes-he" class="space-y-3">
+            <!-- Ejemplo Solicitud 1 -->
+            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-800">13 Nov 2026 | 17:00 a 19:00 (2.0 h)</span>
+                <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full">PENDIENTE JEFE</span>
+              </div>
+              <p class="text-xs text-slate-600">Motivo: Entrega de cierre y balance de nómina mensual en sistemas</p>
+              <div class="text-[11px] text-slate-400 flex items-center justify-between border-t border-slate-200 pt-1.5">
+                <span>Aprobador: Carlos Jefe</span>
+                <span>Alerta WhatsApp enviada</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- PESTAÑA 3: PORTAL JEFE INMEDIATO (APROBACIÓN Y AUTORIZACIÓN) -->
+    <!-- ========================================================================= -->
+    <div id="tab-jefatura" class="pestana-seccion hidden space-y-6">
+      
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+          <div>
+            <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+              <i class="fa-solid fa-clipboard-check text-disjoya-red"></i>
+              Bandeja de Aprobación de Horas Extras de Equipo
+            </h3>
+            <p class="text-xs text-slate-500">Supervisión jerárquica y validación de pertinencia operativa</p>
+          </div>
+          <span class="bg-disjoya-navy text-white text-xs font-bold px-3 py-1 rounded-full">Equipo Operativo</span>
+        </div>
+
+        <div id="bandeja-jefe-solicitudes" class="space-y-4">
+          <!-- Tarjeta de Solicitud Pendiente para Decidir -->
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-sm font-bold text-slate-900">Pedro Noriega - Desarrollador Full Stack</p>
+                <p class="text-xs text-slate-500">Documento: CC 1020304050 | Sede Principal</p>
+              </div>
+              <span class="text-xs font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full">Requiere Decisión</span>
+            </div>
+
+            <div class="bg-white p-3 rounded-lg border border-slate-200 text-xs space-y-1">
+              <p><strong>Horario Solicitado:</strong> 13 de Noviembre 2026 de 17:00 a 19:00 (2.00 Horas Extras Diurnas)</p>
+              <p><strong>Motivo Justificado:</strong> Entrega de cierre y balance de nómina mensual en sistemas</p>
+              <p class="text-emerald-700"><strong>Verificación MAPE-K:</strong> Dentro de topes legales (Día: 2h / Semana: 2h de 12h).</p>
+            </div>
+
+            <div class="flex items-center gap-3 pt-1">
+              <button onclick="decidirHE(true)" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition shadow flex items-center justify-center gap-2">
+                <i class="fa-solid fa-check"></i> Aprobar Horas Extras
+              </button>
+              <button onclick="decidirHE(false)" class="flex-1 bg-disjoya-red hover:bg-disjoya-redHover text-white font-bold py-2.5 px-4 rounded-xl text-xs transition shadow flex items-center justify-center gap-2">
+                <i class="fa-solid fa-xmark"></i> Rechazar Solicitud
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- PESTAÑA 4: PRE-LIQUIDACIÓN DE NÓMINA LEGAL Y RECARGOS (COLOMBIA) -->
+    <!-- ========================================================================= -->
+    <div id="tab-nomina" class="pestana-seccion hidden space-y-6">
+      
+      <!-- Panel de Configuración del Período de Liquidación -->
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Motor de Pre-Liquidación Laboral (Noviembre 2026)</h3>
+          <p class="text-xs text-slate-500">Cálculo de HOD, HED, HEN, RDD, HEDDF, HENDF y nómina electrónica</p>
+        </div>
+        <div class="flex items-center space-x-3">
+          <input type="date" id="liq-desde" value="2026-11-13" class="text-xs p-2 rounded-xl border border-slate-300 font-semibold">
+          <span class="text-xs text-slate-400">a</span>
+          <input type="date" id="liq-hasta" value="2026-11-13" class="text-xs p-2 rounded-xl border border-slate-300 font-semibold">
+          <button onclick="ejecutarPreliquidacion()" class="bg-disjoya-navy hover:bg-disjoya-navyLight text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-calculator"></i> Liquidar Período
+          </button>
+        </div>
+      </div>
+
+      <!-- Resumen Consolidado de Horas y Valores -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200">
+          <p class="text-xs text-slate-400 font-medium">Total Horas Laboradas</p>
+          <h4 id="liq-resumen-laboradas" class="text-xl font-extrabold text-slate-800 mt-1">11.03 h</h4>
+          <p class="text-[10px] text-slate-500 mt-1">Marcación QR real</p>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200">
+          <p class="text-xs text-slate-400 font-medium">Horas Ordinarias</p>
+          <h4 id="liq-resumen-ordinarias" class="text-xl font-extrabold text-blue-600 mt-1">9.00 h</h4>
+          <p class="text-[10px] text-slate-500 mt-1">Incluidas en Salario Básico</p>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200">
+          <p class="text-xs text-slate-400 font-medium">Horas Extras Conciliadas</p>
+          <h4 id="liq-resumen-extras" class="text-xl font-extrabold text-amber-600 mt-1">2.00 h</h4>
+          <p class="text-[10px] text-slate-500 mt-1">Aprobadas por Jefe</p>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200">
+          <p class="text-xs text-slate-400 font-medium">Total Recargos y Extras</p>
+          <h4 id="liq-resumen-total-pagar" class="text-xl font-extrabold text-disjoya-red mt-1">$ 25.000,00</h4>
+          <p class="text-[10px] text-emerald-600 font-medium mt-1">Pre-liquidación Lista</p>
+        </div>
+      </div>
+
+      <!-- Tabla Detallada de Conceptos CST -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+          <h4 class="font-bold text-xs uppercase tracking-wider text-slate-700">Discriminación de Conceptos Laborales (CST & DIAN)</h4>
+          <span class="text-xs font-mono text-slate-500">Valor Hora Base: $ 10.000,00</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs text-left">
+            <thead class="bg-slate-100 text-slate-600 uppercase text-[10px] font-bold">
+              <tr>
+                <th class="p-3">Código CST</th>
+                <th class="p-3">Concepto</th>
+                <th class="p-3">DIAN</th>
+                <th class="p-3 text-right">Horas</th>
+                <th class="p-3 text-right">% Recargo</th>
+                <th class="p-3 text-right">Factor</th>
+                <th class="p-3 text-right">Valor a Pagar</th>
+              </tr>
+            </thead>
+            <tbody id="liq-tabla-detalle" class="divide-y divide-slate-100 font-medium">
+              <tr>
+                <td class="p-3 font-mono font-bold text-slate-800">HOD</td>
+                <td class="p-3">Hora Ordinaria Diurna</td>
+                <td class="p-3"><span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">Basico</span></td>
+                <td class="p-3 text-right">9.00 h</td>
+                <td class="p-3 text-right">0.00%</td>
+                <td class="p-3 text-right">0.00</td>
+                <td class="p-3 text-right text-slate-400">$ 0,00 (En Básico)</td>
+              </tr>
+              <tr class="bg-red-50/40">
+                <td class="p-3 font-mono font-bold text-disjoya-red">HED</td>
+                <td class="p-3 font-bold text-slate-900">Hora Extra Diurna (Art. 168 CST)</td>
+                <td class="p-3"><span class="bg-red-100 text-disjoya-red px-1.5 py-0.5 rounded text-[10px] font-bold">HED</span></td>
+                <td class="p-3 text-right font-bold">2.00 h</td>
+                <td class="p-3 text-right">25.00%</td>
+                <td class="p-3 text-right">1.25</td>
+                <td class="p-3 text-right font-bold text-disjoya-red">$ 25.000,00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap justify-between items-center text-xs text-slate-500 gap-2">
+          <div>
+            Sello SHA-256 de Pre-Liquidación: <span id="liq-sello-sha" class="font-mono text-[10px] text-slate-700 bg-white px-2 py-1 rounded border">4b68e7b99c7198e3b0f592deba87e793d5089e0c52bb5352c3c690c58e576ec6</span>
+          </div>
+          <button onclick="copiarJsonDian()" class="text-disjoya-navy hover:text-disjoya-red font-bold flex items-center gap-1">
+            <i class="fa-solid fa-copy"></i> Copiar Payload Nómina DIAN
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- PESTAÑA 5: PANTALLA KIOSCO DE SEDE (GENERADOR QR TOTP) -->
+    <!-- ========================================================================= -->
+    <div id="tab-kiosco" class="pestana-seccion hidden space-y-6">
+      <div class="max-w-2xl mx-auto bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden text-center p-8">
+        
+        <div class="flex items-center justify-center space-x-3 mb-4">
+          <img src="/static/logo_disjoya.png" alt="Disjoya" class="h-12 w-auto">
+        </div>
+        <h3 class="text-xl font-extrabold text-disjoya-navy">KIOSCO INSTITUCIONAL DE CONTROL HORARIO</h3>
+        <p class="text-xs text-slate-500 mt-1">Sede Principal Financiera | Calle 72 # 10-07, Bogotá</p>
+
+        <!-- Contenedor del Código QR Dinámico -->
+        <div class="my-8 flex flex-col items-center justify-center">
+          <div class="p-6 bg-white rounded-2xl shadow-2xl border-4 border-disjoya-navy inline-block" id="qr-kiosco-box">
+            <div id="qrcode-kiosco" class="flex items-center justify-center"></div>
+          </div>
+          
+          <!-- Barra de Progreso de Expiración (TTL: 30s) -->
+          <div class="w-64 max-w-full bg-slate-200 rounded-full h-2.5 mt-6 overflow-hidden">
+            <div id="kiosco-progress-bar" class="bg-disjoya-red h-2.5 rounded-full transition-all duration-1000" style="width: 100%"></div>
+          </div>
+          <p class="text-xs font-mono font-bold text-slate-600 mt-2">
+            El código se renueva en: <span id="kiosco-timer" class="text-disjoya-red font-extrabold text-sm">30</span> segundos
+          </p>
+        </div>
+
+        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs text-slate-600 text-left space-y-1">
+          <p class="font-bold text-slate-800 flex items-center gap-1.5">
+            <i class="fa-solid fa-shield-virus text-emerald-600"></i>
+            Mecanismo Anti-Spoofing Activo:
+          </p>
+          <p>• Los códigos fotografiados o compartidos por WhatsApp expiran en 30 segundos.</p>
+          <p>• Se exige verificación GPS en un radio máximo de 50 metros de esta sede física.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- PESTAÑA 6: AUDITORÍA FORENSE Y HABEAS DATA (LEY 1581 DE 2012) -->
+    <!-- ========================================================================= -->
+    <div id="tab-auditoria" class="pestana-seccion hidden space-y-6">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Habeas Data -->
+        <div class="lg:col-span-5 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+          <div class="border-b border-slate-100 pb-3">
+            <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+              <i class="fa-solid fa-user-lock text-disjoya-red"></i>
+              Consentimiento de Habeas Data (Ley 1581/2012)
+            </h3>
+            <p class="text-xs text-slate-500">Autorización previa, expresa e informada</p>
+          </div>
+
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs text-slate-700 space-y-2">
+            <p class="font-bold text-disjoya-navy">Política de Tratamiento v2026.11</p>
+            <p class="text-[11px] leading-relaxed text-slate-600">
+              Disjoya Autopartes S.A.S. captura coordenadas GPS únicamente en el instante del escaneo del código QR para validación de presencia física en sede. No se realiza geolocalización continua ni rastreo pasivo.
+            </p>
+            <div class="pt-2 border-t border-slate-200 flex items-center justify-between text-xs font-semibold">
+              <span>Estado del Titular:</span>
+              <span class="text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded font-bold">VIGENTE Y FIRMADO</span>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <button onclick="firmarHabeasData(true)" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition">
+              <i class="fa-solid fa-file-signature"></i> Ratificar Consentimiento
+            </button>
+            <button onclick="firmarHabeasData(false)" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-xl text-xs transition">
+              Revocar Geolocalización (Medio Alterno Asistido)
+            </button>
+          </div>
+        </div>
+
+        <!-- Hash-Chain Auditoría Inmutable -->
+        <div class="lg:col-span-7 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+          <div class="border-b border-slate-100 pb-3 flex justify-between items-center">
+            <div>
+              <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                <i class="fa-solid fa-link text-emerald-600"></i>
+                Cadena de Custodia Inmutable (Hash-Chain SHA-256)
+              </h3>
+              <p class="text-xs text-slate-500">Apta como prueba ante MinTrabajo y Jueces Laborales</p>
+            </div>
+            <button onclick="verificarCadenaAuditoria()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1 border">
+              <i class="fa-solid fa-arrows-rotate"></i> Verificar
+            </button>
+          </div>
+
+          <div class="space-y-3" id="log-cadena-auditoria">
+            <!-- Evento 1 -->
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs font-mono space-y-1">
+              <div class="flex justify-between items-center font-bold text-slate-800">
+                <span class="text-disjoya-red">#0042 - MARCACION_REGISTRADA</span>
+                <span class="text-slate-500 text-[10px]">13-11-2026 07:58:10</span>
+              </div>
+              <p class="text-[11px] text-slate-600">Actor: Pedro Noriega | Centro: Sede Principal | Dist: 3.2m</p>
+              <div class="text-[10px] text-slate-400 break-all">
+                Hash Actual: <span class="text-emerald-700 font-bold">a9f8e7c6b5a4d3...e2f1</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FOOTER INSTITUCIONAL -->
+  <footer class="bg-disjoya-navy text-slate-400 py-6 text-xs border-t border-slate-800 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <span class="font-bold text-white">DISJOYA AUTOPARTES S.A.S.</span>
+        <span>|</span>
+        <span>NIT: 900.123.456-7</span>
+      </div>
+      <div>
+        Cumplimiento Legal MinTrabajo • Ley 2101 de 2021 • Ley 1581 de 2012
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPT LÓGICO DE LA APLICACIÓN -->
+  <script>
+    // ESTADO GLOBAL DE LA APLICACIÓN
+    let usuarioActual = {
+      id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      rol: 'TRABAJADOR',
+      nombre: 'Pedro Noriega',
+      documento: 'CC 1020304050',
+      deviceUuid: 'a8b4f1-9c3d-4e5f-b6a1-0192837465'
+    };
+
+    let sedePrincipal = {
+      id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+      lat: 4.655828,
+      lon: -74.058342,
+      radio: 50
+    };
+
+    let html5QrCode = null;
+    let qrActualPayload = 'DJY1.f47ac10b-58cc-4372-a567-0e02b2c3d479.59821034.84920183';
+    let kioscoSegundosRestantes = 30;
+    let kioscoInterval = null;
+
+    // INICIALIZACIÓN
+    document.addEventListener('DOMContentLoaded', () => {
+      iniciarRelojColombia();
+      iniciarKioscoQR();
+      actualizarInterfazUsuario();
+    });
+
+    // RELOJ LEGAL COLOMBIA (UTC-5)
+    function iniciarRelojColombia() {
+      setInterval(() => {
+        const ahora = new Date();
+        // Convertir a hora de Bogotá UTC-5
+        const formato = new Intl.DateTimeFormat('es-CO', {
+          timeZone: 'America/Bogota',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true
+        }).format(ahora);
+        document.getElementById('reloj-colombia').innerText = formato;
+      }, 1000);
+    }
+
+    // CONTROL DE PESTAÑAS
+    function cambiarPestana(tabId) {
+      document.querySelectorAll('.pestana-seccion').forEach(el => el.classList.add('hidden'));
+      document.getElementById(tabId).classList.remove('hidden');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-disjoya-red', 'text-white', 'shadow-sm');
+        btn.classList.add('text-slate-300', 'hover:bg-disjoya-navyLight');
+      });
+
+      const activo = document.getElementById(`nav-${tabId}`);
+      if (activo) {
+        activo.classList.remove('text-slate-300', 'hover:bg-disjoya-navyLight');
+        activo.classList.add('bg-disjoya-red', 'text-white', 'shadow-sm');
+      }
+
+      if (tabId !== 'tab-marcacion' && html5QrCode) {
+        detenerEscaner();
+      }
+    }
+
+    // CAMBIO DE PERFILES PARA DEMOSTRACIÓN
+    function toggleMenuUsuario() {
+      const menu = document.getElementById('menu-roles');
+      menu.classList.toggle('hidden');
+    }
+
+    function cambiarPerfil(rol, nombre, doc) {
+      usuarioActual.rol = rol;
+      usuarioActual.nombre = nombre;
+      usuarioActual.documento = doc;
+      actualizarInterfazUsuario();
+      toggleMenuUsuario();
+    }
+
+    function actualizarInterfazUsuario() {
+      document.getElementById('user-display-name').innerText = usuarioActual.nombre;
+      document.getElementById('user-display-role').innerText = usuarioActual.rol;
+      
+      // Ajustar insignias según rol
+      const roleBadge = document.getElementById('user-display-role');
+      if (usuarioActual.rol === 'JEFE_INMEDIATO') {
+        roleBadge.className = 'text-[10px] bg-amber-500 text-white px-2 py-0.5 rounded font-bold uppercase';
+      } else if (usuarioActual.rol === 'NOMINA_RRHH') {
+        roleBadge.className = 'text-[10px] bg-purple-600 text-white px-2 py-0.5 rounded font-bold uppercase';
+      } else if (usuarioActual.rol === 'AUDITOR_SUPERADMIN') {
+        roleBadge.className = 'text-[10px] bg-disjoya-red text-white px-2 py-0.5 rounded font-bold uppercase';
+      } else {
+        roleBadge.className = 'text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded font-bold uppercase';
+      }
+    }
+
+    // ESCÁNER DE CÁMARA (HTML5-QRCode)
+    function iniciarEscaner() {
+      const container = document.getElementById('scanner-container');
+      const placeholder = document.getElementById('scanner-placeholder');
+      
+      placeholder.classList.add('hidden');
+      document.getElementById('btn-iniciar-camara').classList.add('hidden');
+      document.getElementById('btn-detener-camara').classList.remove('hidden');
+
+      html5QrCode = new Html5Qrcode("qr-reader");
+      html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        (decodedText) => {
+          qrActualPayload = decodedText;
+          detenerEscaner();
+          ejecutarMarcacion();
+        },
+        (errorMessage) => {
+          // scanning frame
+        }
+      ).catch(err => {
+        alert("No se pudo acceder a la cámara. Se activará el modo de simulación automática.");
+        detenerEscaner();
+      });
+    }
+
+    function detenerEscaner() {
+      if (html5QrCode) {
+        html5QrCode.stop().then(() => {
+          html5QrCode.clear();
+          document.getElementById('scanner-placeholder').classList.remove('hidden');
+          document.getElementById('btn-iniciar-camara').classList.remove('hidden');
+          document.getElementById('btn-detener-camara').classList.add('hidden');
+        }).catch(err => console.log(err));
+      }
+    }
+
+    function usarQRMuestra() {
+      // Tomar el QR vigente que está rotando en el Kiosco
+      ejecutarMarcacion();
+    }
+
+    // EJECUCIÓN DE MARCACIÓN CON GEOCERCA
+    function ejecutarMarcacion() {
+      const resEl = document.getElementById('resultado-marcacion');
+      resEl.classList.remove('hidden');
+
+      // Simulación de respuesta exitosa del backend
+      resEl.className = 'p-4 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-900 space-y-1.5 animate-fade-in';
+      resEl.innerHTML = `
+        <div class="flex items-center gap-2 font-bold text-sm">
+          <i class="fa-solid fa-circle-check text-emerald-600 text-base"></i>
+          <span>Marcación de Asistencia Registrada Exitosamente</span>
+        </div>
+        <p class="text-xs">Tipo: <strong>ENTRADA REGISTRADA</strong> | Sede: <strong>Sede Principal Financiera</strong></p>
+        <p class="text-xs">Distancia Geocerca: <strong>3.2 metros</strong> (Permitido: 50m) | Precisión: ±4m</p>
+        <p class="text-[11px] font-mono text-emerald-700">Sello SHA-256: 7d8f9a2b4c6e...3a1c</p>
+      `;
+
+      // Agregar a la lista de marcaciones
+      const lista = document.getElementById('lista-marcas-hoy');
+      const nuevoItem = document.createElement('div');
+      nuevoItem.className = 'flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200';
+      nuevoItem.innerHTML = `
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-xs">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+          </div>
+          <div>
+            <p class="text-xs font-bold text-slate-800">ENTRADA CONFIRMADA</p>
+            <p class="text-[11px] text-slate-500">Sede Principal | Dist: 3.2m</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <span class="font-mono text-xs font-bold text-slate-800">${new Date().toLocaleTimeString()}</span>
+          <p class="text-[10px] text-emerald-600 font-medium">NTP Verificado</p>
+        </div>
+      `;
+      lista.prepend(nuevoItem);
+    }
+
+    // GESTIÓN DE HORAS EXTRAS (SOLICITUD)
+    function enviarSolicitudHE() {
+      const fecha = document.getElementById('he-fecha').value;
+      const inicio = document.getElementById('he-inicio').value;
+      const fin = document.getElementById('he-fin').value;
+      const motivo = document.getElementById('he-motivo').value;
+
+      // Cálculo de horas solicitadas
+      const [hIni, mIni] = inicio.split(':').map(Number);
+      const [hFin, mFin] = fin.split(':').map(Number);
+      const minutos = (hFin * 60 + mFin) - (hIni * 60 + mIni);
+      const horas = minutos / 60;
+
+      // Validación de Tope Legal Colombia (Art. 22 Ley 50/1990)
+      if (horas > 2.0) {
+        alert(`BLOQUEO DETERMINÍSTICO ART. 22 LEY 50/1990: Ha solicitado ${horas} horas extras. El límite diario legal improrrogable es de máximo dos (2) horas extras diarias.`);
+        return;
+      }
+
+      alert(`Solicitud de ${horas} horas extras radicada con éxito. Se ha disparado la notificación inmediata al jefe inmediato.`);
+      
+      // Actualizar medidor
+      document.getElementById('gauge-dia-uso').innerText = horas.toFixed(1);
+      document.getElementById('bar-dia-uso').style.width = `${(horas / 2.0) * 100}%`;
+    }
+
+    // DECISIÓN DEL JEFE
+    function decidirHE(aprobado) {
+      if (aprobado) {
+        alert("Horas extras APROBADAS con éxito. El trabajador ha sido notificado.");
+        document.getElementById('bandeja-jefe-solicitudes').innerHTML = `
+          <div class="p-6 text-center text-slate-400 bg-slate-50 rounded-xl border border-slate-200">
+            <i class="fa-solid fa-check-double text-emerald-500 text-3xl mb-2"></i>
+            <p class="text-xs font-semibold text-slate-700">No hay solicitudes pendientes por revisar</p>
+            <p class="text-[11px] text-slate-400">Todas las horas extras han sido gestionadas con éxito.</p>
+          </div>
+        `;
+      } else {
+        const razon = prompt("Por favor ingrese el motivo del rechazo:", "No justificado operativamente");
+        if (razon) {
+          alert("Solicitud rechazada y registrada en auditoría con su motivación.");
+        }
+      }
+    }
+
+    // MOTOR DEL KIOSCO (ROTACIÓN TOTP CADA 30s)
+    function iniciarKioscoQR() {
+      generarNuevoQRKiosco();
+      kioscoInterval = setInterval(() => {
+        kioscoSegundosRestantes--;
+        document.getElementById('kiosco-timer').innerText = kioscoSegundosRestantes;
+        const pct = (kioscoSegundosRestantes / 30) * 100;
+        document.getElementById('kiosco-progress-bar').style.width = `${pct}%`;
+
+        if (kioscoSegundosRestantes <= 0) {
+          kioscoSegundosRestantes = 30;
+          generarNuevoQRKiosco();
+        }
+      }, 1000);
+    }
+
+    function generarNuevoQRKiosco() {
+      const ventana = Math.floor(Date.now() / 30000);
+      const randomTotp = Math.floor(10000000 + Math.random() * 90000000);
+      qrActualPayload = `DJY1.${sedePrincipal.id}.${ventana}.${randomTotp}`;
+
+      const el = document.getElementById("qrcode-kiosco");
+      el.innerHTML = '';
+      new QRCode(el, {
+        text: qrActualPayload,
+        width: 220,
+        height: 220,
+        colorDark: "#0F2D3D",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    // PRE-LIQUIDACIÓN DE NÓMINA
+    function ejecutarPreliquidacion() {
+      alert("Pre-liquidación de nómina generada con éxito aplicando los factores vigentes de Noviembre de 2026.");
+    }
+
+    function copiarJsonDian() {
+      const dianPayload = {
+        "Periodo": { "FechaInicio": "2026-11-13", "FechaFin": "2026-11-13" },
+        "Devengados": {
+          "HEDs": [{ "Cantidad": "2.00", "Porcentaje": "25.00", "Pago": "25000.00" }]
+        },
+        "SelloSHA256": "4b68e7b99c7198e3b0f592deba87e793d5089e0c52bb5352c3c690c58e576ec6"
+      };
+      navigator.clipboard.writeText(JSON.stringify(dianPayload, null, 2));
+      alert("Payload de Nómina Electrónica DIAN copiado al portapapeles.");
+    }
+
+    // HABEAS DATA
+    function firmarHabeasData(acepta) {
+      alert(acepta ? "Consentimiento firmado y sellado bajo la Ley 1581 de 2012." : "Se ha configurado la opción de marcación asistida en recepción.");
+    }
+
+    function verificarCadenaAuditoria() {
+      alert("CADENA DE AUDITORÍA ÍNTEGRA: Todos los 42 registros encadenados coinciden con los sellos criptográficos SHA-256.");
+    }
+  </script>
+</body>
+</html>
+

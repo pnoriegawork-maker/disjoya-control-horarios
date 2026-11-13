@@ -1,0 +1,122 @@
+<master_prompt>
+<role>
+Actúas como un Arquitecto de Sistemas Agénticos Autónomos Senior, Ingeniero de Software Full-Stack (Python, FastAPI/Node.js, PostgreSQL/Supabase, PWA/React Native), Abogado Laboralista Senior y Auditor de Ciberseguridad/Habeas Data en Colombia. Dominas la legislación laboral colombiana vigente a noviembre de 2026: Código Sustantivo del Trabajo (CST), Ley 2101 de 2021 (reducción progresiva de la jornada laboral a 44 horas semanales), Ley 1846 de 2017 y reformas sobre recargos nocturnos, dominicales y festivos, topes máximos de trabajo suplementario (Art. 22 de la Ley 50 de 1990 y Resoluciones del MinTrabajo: máx. 2 horas extras diarias y 12 semanales), Ley Estatutaria 1581 de 2012 de Protección de Datos Personales, Decreto 1377 de 2013 y la metodología de control en lazo cerrado (Loop Engineering - Protocolo MAPE-K).
+</role>
+
+<context>
+Una empresa en Colombia requiere diseñar, estructurar e implementar un SISTEMA AGÉNTICO AUTÓNOMO INTELIGENTE PARA EL CONTROL HORARIO, GESTIÓN DE TRABAJO SUPLEMENTARIO (HORAS EXTRAS) Y PRE-LIQUIDACIÓN DE NÓMINA LEGAL.
+
+ENTORNO OPERATIVO Y REQUERIMIENTOS FUNCIONALES:
+1. Marcación de Asistencia Ágil y Antifraude (Escaneo QR Dinámico):
+   - Los trabajadores utilizan su teléfono móvil (PWA o App móvil) para escanear un código QR institucional en el centro de trabajo o puesto asignado.
+   - Registro temporal en zona horaria oficial: "America/Bogota" (UTC-5), con marca de tiempo atómica NTP inmutable.
+   - Prevención de fraude (Anti-Spoofing): Validación de geolocalización (Geofencing GPS en un radio configurable, ej. 50 metros del centro de trabajo) y código QR dinámico con rotación basada en tiempo (TOTP con TTL de 15 a 30 segundos) para impedir que los empleados fotografíen o compartan el QR por WhatsApp.
+
+2. Flujo Agéntico de Solicitud y Aprobación de Horas Extras (Workflow Legal Obligatorio):
+   - Módulo de Solicitud: Cuando el trabajador requiera o sea asignado para laborar tiempo suplementario, solicita a través de la app la autorización previa indicando el motivo justificado y la cantidad estimada de horas.
+   - Notificación al Jefe Inmediato: El agente notificador dispara una alerta inmediata (Push / WhatsApp Business API / Correo corporativo) al superior jerárquico responsable.
+   - Aprobación y Validación de Topes Legales Inviolables (Límite Legal Colombia):
+     * Tope diario: Máximo dos (2) horas extras al día.
+     * Tope semanal: Máximo doce (12) horas extras a la semana.
+     * El sistema bloquea de manera determinística cualquier solicitud o aprobación que sobrepase estos límites normativos (Art. 22 Ley 50/1990).
+   - Doble Validación de Cumplimiento: La hora extra aprobada se confronta automáticamente al finalizar la jornada con la marca real de salida escaneada por el QR.
+
+3. Motor de Cálculo y Pre-Liquidación de Nómina Legal (Marco Colombia 2026):
+   - Discriminación y parametrización automática de recargos según el CST:
+     * Hora Ordinaria Diurna (HOD).
+     * Hora Extra Diurna (HED): Recargo del 25% (Factor 1.25).
+     * Hora Nocturna Ordinaria (RN): Recargo del 35% (Factor 0.35).
+     * Hora Extra Nocturna (HEN): Recargo del 75% (Factor 1.75).
+     * Hora Ordinaria Dominical/Festiva (RDD): Recargo del 75% (o porcentaje vigente según reforma laboral).
+     * Hora Extra Diurna Dominical/Festiva (HEDDF): Recargo del 100% (Factor 2.00).
+     * Hora Extra Nocturna Dominical/Festiva (HENDF): Recargo del 150% (Factor 2.50).
+   - Parámetro de Jornada Semanal Ordinaria: 44 horas semanales vigentes bajo la Ley 2101 de 2021 (reducción progresiva hacia las 42 horas).
+
+4. Ciberseguridad, Auditoría Forense y Protección de Datos Personales (Ley 1581 de 2012):
+   - Cumplimiento de Habeas Data: Consentimiento expreso digital para el tratamiento de datos de geolocalización y registro laboral.
+   - Seguridad de la Información: Cifrado en tránsito con TLS 1.3 y en reposo con AES-256.
+   - Aislamiento de Acceso: Control de acceso basado en roles (RBAC: Trabajador, Jefe Inmediato, Gestor de Nómina/RRHH, Auditor/SuperAdmin).
+   - Trazabilidad y Logs Inmutables: Registro de auditoría (Audit Trail) que documenta cada marcación, IP de origen, coordenadas GPS, ID de dispositivo, marca de tiempo y aprobaciones del jefe inmediato, apto como prueba en inspecciones del Ministerio del Trabajo o procesos judiciales ordinarios laborales.
+</context>
+
+<task>
+Aplica el protocolo de Ingeniería de Bucles (Loop Engineering - Protocolo MAPE-K) para diseñar la arquitectura completa del sistema agéntico, estructurar el modelo de base de datos relacional (PostgreSQL), programar los endpoints críticos de marcación QR y workflow de horas extras en Python (FastAPI), codificar el motor financiero-laboral de liquidación y redactar la política de cumplimiento de ciberseguridad y datos sensibles.
+</task>
+
+<loop_engineering_execution_protocol>
+El diseño y la operación del sistema agéntico deben autogobernarse bajo el lazo cerrado de control continuo en cinco fases (MAPE-K):
+
+1. MONITOR (M) - Ingesta de Marcaciones QR y Detección de Eventos Horarios:
+   - Captura en tiempo real del evento de escaneo móvil:
+     * Lectura del payload del QR dinámico (TOTP token + Device_UUID).
+     * Verificación de la zona horaria legal ("America/Bogota" - UTC-5) y marca de tiempo atómica NTP.
+     * Validación de coordenadas GPS contra el polígono del centro de trabajo (Geofencing check).
+   - Monitoreo del estado de jornada: Identificación de turnos programados, retrasos, salidas tempranas o continuación de jornada sin autorización previa.
+
+2. ANALYZE (A) - Clasificación Legal, Detección de Horas Extras y Validación de Topes:
+   - Análisis de tiempo laborado vs. jornada contractual ordinaria pactada.
+   - Evaluación determinística de la solicitud de trabajo suplementario:
+     * Cómputo de horas extras acumuladas en el día (validar que no exceda 2 horas).
+     * Cómputo de horas extras acumuladas en la semana laboral (validar que no exceda 12 horas).
+   - Alerta al Jefe Inmediato: Si hay horas extras solicitadas dentro del límite legal, el agente enrutador genera la tarea de aprobación; si excede el tope, genera un rechazo automático por imperativo normativo (Art. 22 Ley 50/1990).
+
+3. PLAN (P) - Orquestación de Flujos, Autorización y Clasificación de Recargos:
+   - Si el jefe inmediato aprueba: El sistema habilita la ventana de tiempo suplementario y programa el cierre del turno.
+   - Clasificación cronológica del trabajo suplementario:
+     * Partición de horas según franja diurna (06:00 a 21:00 / 19:00 según jornada legal vigente) y nocturna.
+     * Detección de días calendario dominicales o festivos nacionales oficiales de Colombia (Ley Emiliani).
+   - Mapeo de conceptos a la matriz de pre-liquidación de nómina electrónica (DIAN).
+
+4. EXECUTE (E) - Código Fuente Monolítico y Modelo de Datos (Zero Placeholders):
+   - Programar el script completo en Python (FastAPI + SQLAlchemy/Pydantic) y esquema SQL en PostgreSQL:
+     * Esquema DDL de Base de Datos: Tablas `empleados`, `centros_trabajo`, `turnos_programados`, `marcaciones_qr`, `solicitudes_horas_extras`, `auditoria_logs`.
+     * Endpoint API 1: Generación y validación de QR Dinámico con verificación de Geocerca (Haversine Formula).
+     * Endpoint API 2: Solicitud, validación de topes (máx. 2h/día, 12h/sem) y aprobación por el Jefe Inmediato.
+     * Endpoint API 3: Motor de Liquidación y discriminación de HOD, HED, HEN, RDD, HEDDF, HENDF.
+
+5. KNOWLEDGE (K) - Auditoría de Seguridad, Registro Inmutable y Reporte de Nómina:
+   - Generación del reporte de auditoría de seguridad y trazabilidad probatoria ante el MinTrabajo.
+   - Emisión del resumen de pre-nómina para interoperabilidad con sistemas de nómina electrónica.
+</loop_engineering_execution_protocol>
+
+<constraints>
+- LEGISLACIÓN LABORAL COLOMBIANA VIGENTE (NOVIEMBRE 2026): Aplicar jornada semanal ordinaria de 44 horas (Ley 2101/2021) y topes estrictos de horas extras (máx. 2h/día y 12h/semana según Art. 22 Ley 50/1990).
+- ZONA HORARIA Y VALIDACIÓN GEOGRÁFICA: Formato estricto hora Colombia ("America/Bogota" UTC-5) con verificación de geolocalización móvil antifraude.
+- CIBERSEGURIDAD Y HABEAS DATA: Cifrado en tránsito y reposo, RBAC estricto y cumplimiento de la Ley 1581 de 2012.
+- CERO PLACEHOLDERS: Código fuente de la API en Python y esquemas SQL 100% funcionales y listos para ejecutar.
+</constraints>
+
+<output_format>
+El modelo debe entregar el diseño y la solución técnica estructurada en Markdown formal:
+
+# 🏛️ ARQUITECTURA AGÉNTICA DE CONTROL HORARIO, HORAS EXTRAS Y NÓMINA LEGAL EN COLOMBIA (MAPE-K)
+
+**Jurisdicción:** República de Colombia  
+**Marco Legal:** CST, Ley 2101 de 2021 (Jornada 44h), Ley 50 de 1990, Ley 1581 de 2012 (Habeas Data)  
+**Zona Horaria:** America/Bogota (UTC-5)  
+**Metodología:** Lazo Cerrado Autonómico (Protocolo MAPE-K)  
+
+---
+
+## 📐 1. ARQUITECTURA DEL SISTEMA AGÉNTICO Y FLUJO DE DATOS
+- Diagrama de flujo del escaneo QR dinámico con geocerca y protocolo de solicitud/aprobación por el jefe inmediato.
+- Matriz de validación legal de topes máximos (2h diarias / 12h semanales).
+
+---
+
+## 🗄️ 2. MODELO DE DATOS RELACIONAL (POSTGRESQL / SUPABASE)
+- Esquema DDL completo con tablas, tipos de datos, llaves foráneas y políticas de seguridad RLS (Row Level Security).
+
+---
+
+## 💻 3. CÓDIGO FUENTE DE LA API EN PYTHON (FASTAPI + SQLALCHEMY)
+- Endpoint de marcación QR con validación temporal TOTP y geocerca GPS.
+- Endpoint de solicitud, aprobación y validación de topes de horas extras.
+- Motor de cálculo y liquidación de recargos laborales (HED, HEN, Dominicales/Festivos).
+
+---
+
+## 🛡️ 4. PROTOCOLO DE CIBERSEGURIDAD, AUDITORÍA FORENSE Y HABEAS DATA (LEY 1581 DE 2012)
+- Políticas de consentimiento digital, cifrado AES-256/TLS 1.3, bitácora de auditoría inmutable y conservación probatoria para inspecciones del Ministerio del Trabajo.
+</output_format>
+</master_prompt>
