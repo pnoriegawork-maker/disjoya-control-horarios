@@ -96,3 +96,4 @@ Abre en tu navegador: [http://localhost:8000](http://localhost:8000)
 
 ## 📂 Memoria Persistente del Proyecto
 Para detalles completos sobre la arquitectura, estado de conexiones, tokens, claves maestras y notas operativas, consulta el archivo [PROJECT_MEMORY.md](file:///c:/Users/Estudiante%2008/Documents/Pedro_Noriega/Aplicaciones%20IA/Sistema%20de%20control%20de%20horarios_Disjoya/PROJECT_MEMORY.md).
+

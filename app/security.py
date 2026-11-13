@@ -126,7 +126,16 @@ def construir_payload_qr(secreto: bytes, centro_id: uuid.UUID, ventana: int) -> 
 
 
 def parsear_payload_qr(payload: str) -> tuple[uuid.UUID, int, str]:
-    partes = payload.strip().split(".")
+    texto = payload.strip()
+    if "?" in texto:
+        import urllib.parse
+        parsed = urllib.parse.urlparse(texto)
+        qs = urllib.parse.parse_qs(parsed.query)
+        if "qr" in qs:
+            texto = qs["qr"][0]
+        elif "code" in qs:
+            texto = qs["code"][0]
+    partes = texto.split(".")
     if len(partes) != 4 or partes[0] != PREFIJO_QR:
         raise ValueError("Formato de QR no reconocido")
     centro_id = uuid.UUID(partes[1])

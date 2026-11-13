@@ -184,3 +184,4 @@ Cuando abras este proyecto en el futuro:
    *"Hola, revisa el archivo PROJECT_MEMORY.md y continuemos trabajando en el sistema de control de horarios de Disjoya."*
 2. Cualquier nuevo usuario o turno que desees agregar puede gestionarse desde la pestaña **"7. Asignar Jefes (Admin)"** en la aplicación web, o mediante los scripts `app/setup_custom_users.py`.
 3. Tu trabajo, base de datos y despliegue están 100% a salvo y respaldados.
+

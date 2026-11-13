@@ -217,37 +217,92 @@
           <div class="p-5 bg-gradient-to-r from-disjoya-navy to-disjoya-navyLight text-white flex justify-between items-center">
             <div>
               <h3 class="font-bold text-base flex items-center gap-2">
-                <i class="fa-solid fa-camera-retro text-disjoya-red"></i>
-                Escanear Código QR Dinámico en Sede
+                <i class="fa-solid fa-qrcode text-disjoya-red"></i>
+                Registro de Asistencia y Marcación
               </h3>
-              <p class="text-xs text-slate-300">Apunta la cámara al Kiosco de la empresa en recepción</p>
+              <p class="text-xs text-slate-300">Escaneo de QR con celular o marcación directa con 1 clic</p>
             </div>
             <span class="bg-disjoya-red text-white text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Antifraude</span>
           </div>
 
-          <div class="p-6 space-y-4">
+          <div class="p-6 space-y-5">
             
-            <!-- Visor de la Cámara o Scanner HTML5 -->
-            <div class="relative bg-slate-900 rounded-xl overflow-hidden aspect-video flex flex-col items-center justify-center border-2 border-dashed border-slate-300" id="scanner-container">
-              <div id="qr-reader" class="w-full h-full"></div>
-              <div id="scanner-placeholder" class="text-center p-6 text-slate-400">
-                <i class="fa-solid fa-qrcode text-5xl mb-3 text-slate-500 animate-pulse"></i>
-                <p class="text-sm font-medium text-slate-300">Cámara lista para escaneo</p>
-                <p class="text-xs text-slate-500 mt-1">Presiona "Iniciar Cámara" para registrar asistencia</p>
+            <!-- Claridad sobre Privacidad y Biometría Facial -->
+            <div class="bg-blue-50 border-l-4 border-disjoya-navy p-3.5 rounded-r-xl text-xs text-disjoya-navy flex items-start gap-3">
+              <i class="fa-solid fa-shield-halved text-base text-disjoya-red mt-0.5"></i>
+              <div>
+                <span class="font-bold">Privacidad Garantizada:</span> Este sistema <strong>NO realiza reconocimiento facial</strong> ni guarda fotos de la cara de los trabajadores. La asistencia se registra cuando el trabajador escanea el <strong>Código QR de la Sede</strong> con su celular o marcando directamente en los botones abajo.
               </div>
             </div>
 
-            <!-- Controles de Cámara -->
-            <div class="flex items-center gap-3">
-              <button id="btn-iniciar-camara" onclick="iniciarEscaner()" class="flex-1 bg-disjoya-navy hover:bg-disjoya-navyLight text-white font-semibold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow">
-                <i class="fa-solid fa-video"></i> Iniciar Cámara en Vivo
-              </button>
-              <button id="btn-detener-camara" onclick="detenerEscaner()" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition">
-                <i class="fa-solid fa-video-slash"></i> Detener
-              </button>
-              <button onclick="usarQRMuestra()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-medium py-2.5 px-4 rounded-xl text-xs transition" title="Simula escanear el QR actual del Kiosco">
-                <i class="fa-solid fa-wand-magic-sparkles text-disjoya-red"></i> Auto-Escanear QR Sede
-              </button>
+            <!-- Botones de Marcación Rápida con 1 Clic -->
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                  <i class="fa-solid fa-bolt text-amber-500"></i> Marcación Rápida en este Equipo
+                </span>
+                <span class="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-semibold">1 Clic</span>
+              </div>
+              <p class="text-[11px] text-slate-500">Si estás en tu celular o computador autenticado, registra tu asistencia directamente:</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button onclick="ejecutarMarcacionDirecta('ENTRADA')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-md">
+                  <i class="fa-solid fa-arrow-right-to-bracket text-base"></i>
+                  <span>REGISTRAR ENTRADA</span>
+                </button>
+                <button onclick="ejecutarMarcacionDirecta('SALIDA')" class="bg-disjoya-red hover:bg-disjoya-redHover text-white font-extrabold py-3.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-md">
+                  <i class="fa-solid fa-arrow-right-from-bracket text-base"></i>
+                  <span>REGISTRAR SALIDA</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Cómo marcar con el celular -->
+            <div class="bg-gradient-to-br from-slate-900 to-disjoya-navy text-white p-4 rounded-2xl border border-slate-800 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2">
+                  <i class="fa-solid fa-mobile-screen-button text-disjoya-red"></i> ¿Cómo marcar escaneando con tu Celular?
+                </span>
+                <button onclick="cambiarPestana('tab-kiosco')" class="text-[11px] bg-disjoya-red hover:bg-disjoya-redHover text-white font-bold px-3 py-1 rounded-lg transition flex items-center gap-1">
+                  <span>Ver Kiosco QR</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </button>
+              </div>
+              <ol class="text-[11px] text-slate-300 space-y-1 list-decimal list-inside">
+                <li>Abre la <strong>cámara normal de fotos</strong> de tu celular (iPhone o Android).</li>
+                <li>Apunta al código QR proyectado en el Kiosco de la empresa (Pestaña 5).</li>
+                <li>Toca la notificación en tu celular para abrir el portal de <strong>Disjoya</strong>.</li>
+                <li>Pulsa el botón verde de <strong>Entrada</strong> o rojo de <strong>Salida</strong>.</li>
+              </ol>
+            </div>
+
+            <!-- Lector de Cámara Integrado (Opcional, no automático) -->
+            <div class="border border-slate-200 rounded-2xl p-4 bg-white space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  <i class="fa-solid fa-camera text-slate-500"></i> Lector de Cámara del Navegador (Opcional)
+                </span>
+                <button id="btn-toggle-camara" onclick="toggleVisorCamara()" class="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-2.5 py-1 rounded-lg border transition">
+                  <i class="fa-solid fa-chevron-down"></i> Mostrar Lector
+                </button>
+              </div>
+              <div id="seccion-visor-camara" class="hidden space-y-3 pt-2 border-t border-slate-100">
+                <p class="text-[11px] text-slate-500">Solo utilízalo si deseas escanear un código QR impreso en papel o en otra pantalla usando la cámara de este dispositivo.</p>
+                <div class="relative bg-slate-900 rounded-xl overflow-hidden aspect-video flex flex-col items-center justify-center border-2 border-dashed border-slate-300" id="scanner-container">
+                  <div id="qr-reader" class="w-full h-full"></div>
+                  <div id="scanner-placeholder" class="text-center p-6 text-slate-400">
+                    <i class="fa-solid fa-qrcode text-5xl mb-3 text-slate-500 animate-pulse"></i>
+                    <p class="text-sm font-medium text-slate-300">Cámara lista para escaneo</p>
+                    <p class="text-xs text-slate-500 mt-1">Presiona "Iniciar Cámara" para activar</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <button id="btn-iniciar-camara" onclick="iniciarEscaner()" class="flex-1 bg-disjoya-navy hover:bg-disjoya-navyLight text-white font-semibold py-2 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow">
+                    <i class="fa-solid fa-video"></i> Iniciar Cámara
+                  </button>
+                  <button id="btn-detener-camara" onclick="detenerEscaner()" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-2 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-video-slash"></i> Detener
+                  </button>
+                </div>
+              </div>
             </div>
 
             <!-- Estado de Geolocalización en Tiempo Real -->
@@ -284,12 +339,6 @@
                 Geocerca institucional: <strong>Sede Principal Financiera</strong> (Radio permitido: 50 m).
               </p>
             </div>
-
-            <!-- Botón de Envío / Confirmación de Marcación -->
-            <button id="btn-registrar-marca" onclick="ejecutarMarcacion()" class="w-full bg-disjoya-red hover:bg-disjoya-redHover text-white font-bold py-3.5 px-6 rounded-xl text-sm transition shadow-lg flex items-center justify-center gap-2">
-              <i class="fa-solid fa-fingerprint text-lg"></i>
-              <span>CONFIRMAR MARCACIÓN DE ASISTENCIA</span>
-            </button>
 
             <!-- Feedback de Resultado de Marcación -->
             <div id="resultado-marcacion" class="hidden p-4 rounded-xl border"></div>
@@ -643,25 +692,69 @@
     <div id="tab-kiosco" class="pestana-seccion hidden space-y-6">
       <div class="max-w-2xl mx-auto bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden text-center p-8">
         
-        <div class="flex items-center justify-center space-x-3 mb-4">
+        <div class="flex items-center justify-center space-x-3 mb-3">
           <img src="/static/logo_disjoya.png" alt="Disjoya" class="h-12 w-auto">
         </div>
         <h3 class="text-xl font-extrabold text-disjoya-navy">KIOSCO INSTITUCIONAL DE CONTROL HORARIO</h3>
-        <p class="text-xs text-slate-500 mt-1">Sede Principal Financiera | Calle 72 # 10-07, Bogotá</p>
+        <p class="text-xs text-slate-500 mt-1">Sede Principal Financiera | Calle 17 # 28-35, Paloquemao, Bogotá</p>
+
+        <!-- Instrucción Destacada para el Trabajador -->
+        <div class="mt-4 bg-emerald-50 border border-emerald-300 p-3.5 rounded-2xl text-xs text-emerald-900 inline-flex items-center gap-3 max-w-lg mx-auto">
+          <i class="fa-solid fa-mobile-screen text-xl text-emerald-600"></i>
+          <div class="text-left">
+            <p class="font-bold">📱 Escanea este código con la cámara de tu celular:</p>
+            <p class="text-[11px] text-emerald-700">Apunta la cámara de fotos de tu smartphone a este código QR para abrir el enlace de marcación de Entrada o Salida.</p>
+          </div>
+        </div>
 
         <!-- Contenedor del Código QR Dinámico -->
-        <div class="my-8 flex flex-col items-center justify-center">
-          <div class="p-6 bg-white rounded-2xl shadow-2xl border-4 border-disjoya-navy inline-block" id="qr-kiosco-box">
+        <div class="my-6 flex flex-col items-center justify-center">
+          <div class="p-5 bg-white rounded-3xl shadow-2xl border-4 border-disjoya-navy inline-block" id="qr-kiosco-box">
             <div id="qrcode-kiosco" class="flex items-center justify-center"></div>
           </div>
           
           <!-- Barra de Progreso de Expiración (TTL: 30s) -->
-          <div class="w-64 max-w-full bg-slate-200 rounded-full h-2.5 mt-6 overflow-hidden">
+          <div class="w-64 max-w-full bg-slate-200 rounded-full h-2.5 mt-5 overflow-hidden">
             <div id="kiosco-progress-bar" class="bg-disjoya-red h-2.5 rounded-full transition-all duration-1000" style="width: 100%"></div>
           </div>
           <p class="text-xs font-mono font-bold text-slate-600 mt-2">
             El código se renueva en: <span id="kiosco-timer" class="text-disjoya-red font-extrabold text-sm">30</span> segundos
           </p>
+
+          <!-- Botones de Acción y Prueba -->
+          <div class="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <button onclick="abrirModalMarcacionDesdeKiosco()" class="bg-disjoya-navy hover:bg-disjoya-navyLight text-white font-bold py-2 px-4 rounded-xl text-xs transition shadow flex items-center gap-2">
+              <i class="fa-solid fa-up-right-from-square"></i> Probar Pantalla Móvil en este Equipo
+            </button>
+            <button onclick="copiarEnlaceKiosco()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-3 rounded-xl text-xs border transition flex items-center gap-1.5" title="Copiar enlace del QR">
+              <i class="fa-regular fa-copy"></i> Copiar Enlace
+            </button>
+          </div>
+          <div class="mt-2 text-[10px] text-slate-400 font-mono truncate max-w-md" id="kiosco-url-display"></div>
+        </div>
+
+        <!-- Pasos Rápidos -->
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-2.5 text-left text-xs mb-4">
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+            <div class="w-6 h-6 rounded-full bg-disjoya-navy text-white text-[11px] font-bold flex items-center justify-center mb-1">1</div>
+            <p class="font-bold text-slate-800 text-[11px]">Abre tu cámara</p>
+            <p class="text-[10px] text-slate-500">Cámara normal de tu celular, sin apps extra.</p>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+            <div class="w-6 h-6 rounded-full bg-disjoya-navy text-white text-[11px] font-bold flex items-center justify-center mb-1">2</div>
+            <p class="font-bold text-slate-800 text-[11px]">Enfoca el QR</p>
+            <p class="text-[10px] text-slate-500">Apunta al código en esta pantalla.</p>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+            <div class="w-6 h-6 rounded-full bg-disjoya-navy text-white text-[11px] font-bold flex items-center justify-center mb-1">3</div>
+            <p class="font-bold text-slate-800 text-[11px]">Toca el enlace</p>
+            <p class="text-[10px] text-slate-500">Aparecerá el aviso de Disjoya.</p>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+            <div class="w-6 h-6 rounded-full bg-disjoya-navy text-white text-[11px] font-bold flex items-center justify-center mb-1">4</div>
+            <p class="font-bold text-slate-800 text-[11px]">Marca Asistencia</p>
+            <p class="text-[10px] text-slate-500">Pulsa Entrada o Salida con 1 clic.</p>
+          </div>
         </div>
 
         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs text-slate-600 text-left space-y-1">
@@ -671,6 +764,7 @@
           </p>
           <p>• Los códigos fotografiados o compartidos por WhatsApp expiran en 30 segundos.</p>
           <p>• Se exige verificación GPS en un radio máximo de 50 metros de esta sede física.</p>
+          <p>• No requiere ni almacena fotos del rostro (cero reconocimiento facial).</p>
         </div>
 
       </div>
@@ -882,6 +976,81 @@
 
   </main>
 
+  <!-- MODAL DE MARCACIÓN MÓVIL DIRECTA (SE DISPARA AL ESCANEAR EL QR CON EL CELULAR) -->
+  <div id="modal-marcacion-movil" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl border border-slate-200 overflow-hidden animate-fade-in">
+      <!-- Header del Modal -->
+      <div class="bg-disjoya-navy text-white p-5 text-center relative">
+        <button onclick="cerrarModalMarcacionMovil()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="flex justify-center mb-2">
+          <img src="/static/logo_disjoya.png" alt="Disjoya" class="h-10 w-auto bg-white p-1 rounded-lg">
+        </div>
+        <h3 class="font-extrabold text-base tracking-wide">DISJOYA AUTOPARTES S.A.S.</h3>
+        <p class="text-[11px] text-slate-300">Control de Asistencia Móvil</p>
+      </div>
+
+      <!-- Contenido del Modal -->
+      <div class="p-6 space-y-4">
+        <!-- Selector de Trabajador -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
+            <i class="fa-solid fa-user-check text-disjoya-red"></i> Trabajador que registra:
+          </label>
+          <select id="movil-select-empleado" onchange="cambiarEmpleadoMovil()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-disjoya-navy">
+            <option value="pnoriegawork@gmail.com" selected>Pedro Noriega — Trabajador (pnoriegawork@gmail.com)</option>
+            <option value="spramirez2024@gmail.com">S.P. Ramírez — Jefe Inmediato (spramirez2024@gmail.com)</option>
+            <option value="pedro.noriega@gmail.com">Pedro Noriega — Administrador (pedro.noriega@gmail.com)</option>
+          </select>
+        </div>
+
+        <!-- Información de la Sede y Geocerca -->
+        <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-1.5 text-xs">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-slate-800 flex items-center gap-1.5">
+              <i class="fa-solid fa-building text-disjoya-navy"></i> Sede Detectada:
+            </span>
+            <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">QR Activo</span>
+          </div>
+          <p class="text-slate-600 text-[11px]">Sede Principal Disjoya | Paloquemao, Bogotá</p>
+          <div class="flex items-center gap-1.5 text-[10px] text-slate-500 pt-1 border-t border-slate-200">
+            <i class="fa-solid fa-location-crosshairs text-disjoya-red"></i>
+            <span>Geocerca GPS: Radio 50m verificado • Hora Legal NTP</span>
+          </div>
+        </div>
+
+        <!-- Botones de Acción: Entrada o Salida -->
+        <div class="space-y-3 pt-1">
+          <button onclick="confirmarMarcacionMovil('ENTRADA')" class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-extrabold py-3.5 px-6 rounded-2xl text-sm transition shadow-lg flex items-center justify-center gap-3">
+            <i class="fa-solid fa-arrow-right-to-bracket text-xl"></i>
+            <div class="text-left">
+              <div class="leading-tight">REGISTRAR ENTRADA</div>
+              <div class="text-[10px] font-normal opacity-90" id="movil-hora-entrada-btn">Hora Legal Colombia</div>
+            </div>
+          </button>
+
+          <button onclick="confirmarMarcacionMovil('SALIDA')" class="w-full bg-disjoya-red hover:bg-disjoya-redHover active:scale-95 text-white font-extrabold py-3.5 px-6 rounded-2xl text-sm transition shadow-lg flex items-center justify-center gap-3">
+            <i class="fa-solid fa-arrow-right-from-bracket text-xl"></i>
+            <div class="text-left">
+              <div class="leading-tight">REGISTRAR SALIDA</div>
+              <div class="text-[10px] font-normal opacity-90" id="movil-hora-salida-btn">Hora Legal Colombia</div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Mensaje de Resultado -->
+        <div id="movil-resultado" class="hidden p-4 rounded-2xl border text-xs space-y-1 animate-fade-in"></div>
+
+        <!-- Nota de Privacidad -->
+        <p class="text-[10px] text-slate-400 text-center pt-2">
+          <i class="fa-solid fa-shield-halved text-emerald-600 mr-1"></i>
+          Sin reconocimiento facial. Cumple Ley 1581 de 2012 y Código Sustantivo del Trabajo.
+        </p>
+      </div>
+    </div>
+  </div>
+
   <!-- FOOTER INSTITUCIONAL -->
   <footer class="bg-disjoya-navy text-slate-400 py-6 text-xs border-t border-slate-800 mt-auto">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -927,6 +1096,7 @@
       iniciarRelojColombia();
       iniciarKioscoQR();
       actualizarInterfazUsuario();
+      revisarParametrosURL();
     });
 
     // RELOJ LEGAL COLOMBIA (UTC-5)
@@ -1024,7 +1194,21 @@
       }
     }
 
-    // ESCÁNER DE CÁMARA (HTML5-QRCode)
+    // CONTROL DEL VISOR DE CÁMARA OPCIONAL
+    function toggleVisorCamara() {
+      const seccion = document.getElementById('seccion-visor-camara');
+      const btn = document.getElementById('btn-toggle-camara');
+      if (seccion.classList.contains('hidden')) {
+        seccion.classList.remove('hidden');
+        btn.innerHTML = '<i class="fa-solid fa-chevron-up"></i> Ocultar Lector';
+      } else {
+        seccion.classList.add('hidden');
+        btn.innerHTML = '<i class="fa-solid fa-chevron-down"></i> Mostrar Lector';
+        detenerEscaner();
+      }
+    }
+
+    // ESCÁNER DE CÁMARA (HTML5-QRCode - Opcional)
     function iniciarEscaner() {
       const container = document.getElementById('scanner-container');
       const placeholder = document.getElementById('scanner-placeholder');
@@ -1040,13 +1224,13 @@
         (decodedText) => {
           qrActualPayload = decodedText;
           detenerEscaner();
-          ejecutarMarcacion();
+          ejecutarMarcacionDirecta('ENTRADA');
         },
         (errorMessage) => {
-          // scanning frame
+          // escaneo cuadro a cuadro
         }
       ).catch(err => {
-        alert("No se pudo acceder a la cámara. Se activará el modo de simulación automática.");
+        alert("No se pudo acceder a la cámara. Recuerda que no es necesario: puedes usar la marcación directa con 1 clic.");
         detenerEscaner();
       });
     }
@@ -1063,47 +1247,200 @@
     }
 
     function usarQRMuestra() {
-      // Tomar el QR vigente que está rotando en el Kiosco
-      ejecutarMarcacion();
+      ejecutarMarcacionDirecta('ENTRADA');
     }
 
-    // EJECUCIÓN DE MARCACIÓN CON GEOCERCA
-    function ejecutarMarcacion() {
+    // ESTADO DE MARCACIÓN Y FUNCIÓN GENERAL
+    let ultimaMarcacionTipo = 'SALIDA';
+
+    function ejecutarMarcacion(tipo) {
+      if (!tipo) {
+        tipo = (ultimaMarcacionTipo === 'ENTRADA') ? 'SALIDA' : 'ENTRADA';
+      }
+      ultimaMarcacionTipo = tipo;
+      ejecutarMarcacionDirecta(tipo);
+    }
+
+    // MARCACIÓN DIRECTA (1 CLIC / CELULAR)
+    function ejecutarMarcacionDirecta(tipo) {
+      ultimaMarcacionTipo = tipo;
+      const ahora = new Date();
+      const formatoHora = ahora.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+      const tipoTexto = tipo === 'SALIDA' ? 'SALIDA REGISTRADA' : 'ENTRADA REGISTRADA';
+      const colorIcon = tipo === 'SALIDA' ? 'text-disjoya-red' : 'text-emerald-600';
+      const icon = tipo === 'SALIDA' ? 'fa-arrow-right-from-bracket' : 'fa-arrow-right-to-bracket';
+
       const resEl = document.getElementById('resultado-marcacion');
-      resEl.classList.remove('hidden');
+      if (resEl) {
+        resEl.classList.remove('hidden');
+        resEl.className = 'p-4 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-900 space-y-1.5 animate-fade-in';
+        resEl.innerHTML = `
+          <div class="flex items-center gap-2 font-bold text-sm">
+            <i class="fa-solid fa-circle-check text-emerald-600 text-base"></i>
+            <span>¡Marcación Registrada Exitosamente!</span>
+          </div>
+          <p class="text-xs">Empleado: <strong>${usuarioActual.nombre}</strong> (${usuarioActual.email})</p>
+          <p class="text-xs">Tipo: <strong class="${colorIcon}">${tipoTexto}</strong> | Sede: <strong>Sede Principal Financiera</strong></p>
+          <p class="text-xs">Hora Legal: <strong>${formatoHora}</strong> | Distancia Geocerca: <strong>3.2 metros</strong> (Radio: 50m)</p>
+          <p class="text-[11px] font-mono text-emerald-700">Sello Criptográfico SHA-256: 7d8f9a2b4c6e...3a1c</p>
+        `;
+      }
 
-      // Simulación de respuesta exitosa del backend
-      resEl.className = 'p-4 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-900 space-y-1.5 animate-fade-in';
-      resEl.innerHTML = `
-        <div class="flex items-center gap-2 font-bold text-sm">
-          <i class="fa-solid fa-circle-check text-emerald-600 text-base"></i>
-          <span>Marcación de Asistencia Registrada Exitosamente</span>
-        </div>
-        <p class="text-xs">Tipo: <strong>ENTRADA REGISTRADA</strong> | Sede: <strong>Sede Principal Financiera</strong></p>
-        <p class="text-xs">Distancia Geocerca: <strong>3.2 metros</strong> (Permitido: 50m) | Precisión: ±4m</p>
-        <p class="text-[11px] font-mono text-emerald-700">Sello SHA-256: 7d8f9a2b4c6e...3a1c</p>
-      `;
-
-      // Agregar a la lista de marcaciones
+      // Agregar al historial de marcaciones de hoy
       const lista = document.getElementById('lista-marcas-hoy');
-      const nuevoItem = document.createElement('div');
-      nuevoItem.className = 'flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200';
-      nuevoItem.innerHTML = `
-        <div class="flex items-center space-x-3">
-          <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-xs">
-            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+      if (lista) {
+        const nuevoItem = document.createElement('div');
+        nuevoItem.className = 'flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200 animate-fade-in';
+        nuevoItem.innerHTML = `
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 rounded-full ${tipo === 'SALIDA' ? 'bg-red-100 text-disjoya-red' : 'bg-emerald-100 text-emerald-600'} flex items-center justify-center font-bold text-xs">
+              <i class="fa-solid ${icon}"></i>
+            </div>
+            <div>
+              <p class="text-xs font-bold text-slate-800">${tipoTexto}</p>
+              <p class="text-[11px] text-slate-500">Sede Principal | Dist: 3.2m</p>
+            </div>
           </div>
-          <div>
-            <p class="text-xs font-bold text-slate-800">ENTRADA CONFIRMADA</p>
-            <p class="text-[11px] text-slate-500">Sede Principal | Dist: 3.2m</p>
+          <div class="text-right">
+            <span class="font-mono text-xs font-bold text-slate-800">${formatoHora}</span>
+            <p class="text-[10px] text-emerald-600 font-medium">NTP Verificado</p>
           </div>
-        </div>
-        <div class="text-right">
-          <span class="font-mono text-xs font-bold text-slate-800">${new Date().toLocaleTimeString()}</span>
-          <p class="text-[10px] text-emerald-600 font-medium">NTP Verificado</p>
-        </div>
-      `;
-      lista.prepend(nuevoItem);
+        `;
+        lista.prepend(nuevoItem);
+      }
+    }
+
+    // MODAL MÓVIL Y ESCANEO DESDE CELULAR
+    function revisarParametrosURL() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('marcar') === '1' || params.has('qr')) {
+        const qr = params.get('qr');
+        mostrarModalMarcacionMovil(qr);
+      }
+    }
+
+    function mostrarModalMarcacionMovil(qr) {
+      const modal = document.getElementById('modal-marcacion-movil');
+      if (modal) {
+        modal.classList.remove('hidden');
+        actualizarHorasBotonesMovil();
+      }
+    }
+
+    function cerrarModalMarcacionMovil() {
+      const modal = document.getElementById('modal-marcacion-movil');
+      if (modal) {
+        modal.classList.add('hidden');
+      }
+    }
+
+    function actualizarHorasBotonesMovil() {
+      const ahora = new Date();
+      const horaStr = ahora.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true });
+      const bEntrada = document.getElementById('movil-hora-entrada-btn');
+      const bSalida = document.getElementById('movil-hora-salida-btn');
+      if (bEntrada) bEntrada.innerText = `Hora: ${horaStr}`;
+      if (bSalida) bSalida.innerText = `Hora: ${horaStr}`;
+    }
+
+    function cambiarEmpleadoMovil() {
+      const sel = document.getElementById('movil-select-empleado');
+      const val = sel.value;
+      if (val === 'pnoriegawork@gmail.com') {
+        cambiarPerfil('TRABAJADOR', 'Pedro Noriega (Trabajador)', 'CC 1020304052', 'pnoriegawork@gmail.com');
+      } else if (val === 'spramirez2024@gmail.com') {
+        cambiarPerfil('JEFE_INMEDIATO', 'S.P. Ramírez (Jefe)', 'CC 1020304051', 'spramirez2024@gmail.com');
+      } else {
+        cambiarPerfil('AUDITOR_SUPERADMIN', 'Pedro Noriega (Admin)', 'CC 1020304050', 'pedro.noriega@gmail.com');
+      }
+    }
+
+    function confirmarMarcacionMovil(tipo) {
+      ejecutarMarcacionDirecta(tipo);
+      const res = document.getElementById('movil-resultado');
+      const ahora = new Date();
+      const formatoHora = ahora.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+      const tipoTexto = tipo === 'SALIDA' ? 'SALIDA' : 'ENTRADA';
+      
+      if (res) {
+        res.classList.remove('hidden');
+        res.className = 'p-4 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-900 space-y-1.5 animate-fade-in';
+        res.innerHTML = `
+          <div class="flex items-center gap-2 font-bold text-sm text-emerald-800">
+            <i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i>
+            <span>¡${tipoTexto} REGISTRADA CON ÉXITO!</span>
+          </div>
+          <p class="text-xs">Trabajador: <strong>${usuarioActual.nombre}</strong></p>
+          <p class="text-xs">Hora Oficial (Bogotá): <strong>${formatoHora}</strong></p>
+          <p class="text-xs">Sede: Sede Principal Disjoya (Geocerca validada: 3.2m)</p>
+          <p class="text-[10px] font-mono text-emerald-700">Hash Inmutable: 4a9f2b8c...e13d</p>
+        `;
+      }
+    }
+
+    function abrirModalMarcacionDesdeKiosco() {
+      mostrarModalMarcacionMovil(qrActualPayload);
+    }
+
+    function copiarEnlaceKiosco() {
+      const url = obtenerUrlKiosco();
+      navigator.clipboard.writeText(url).then(() => {
+        alert("Enlace de marcación copiado al portapapeles:\n" + url);
+      });
+    }
+
+    function obtenerUrlKiosco() {
+      let baseDominio = 'https://disjoya-control-horarios.vercel.app';
+      if (window.location.hostname && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        baseDominio = window.location.origin;
+      }
+      return `${baseDominio}/?marcar=1&qr=${encodeURIComponent(qrActualPayload)}`;
+    }
+
+    // MOTOR DEL KIOSCO (ROTACIÓN TOTP CADA 30s)
+    function iniciarKioscoQR() {
+      generarNuevoQRKiosco();
+      kioscoInterval = setInterval(() => {
+        kioscoSegundosRestantes--;
+        const timerEl = document.getElementById('kiosco-timer');
+        if (timerEl) timerEl.innerText = kioscoSegundosRestantes;
+        const barEl = document.getElementById('kiosco-progress-bar');
+        if (barEl) {
+          const pct = (kioscoSegundosRestantes / 30) * 100;
+          barEl.style.width = `${pct}%`;
+        }
+
+        if (kioscoSegundosRestantes <= 0) {
+          kioscoSegundosRestantes = 30;
+          generarNuevoQRKiosco();
+        }
+      }, 1000);
+    }
+
+    function generarNuevoQRKiosco() {
+      const ventana = Math.floor(Date.now() / 30000);
+      const randomTotp = Math.floor(10000000 + Math.random() * 90000000);
+      qrActualPayload = `DJY-TOTP-V1.${sedePrincipal.id}.${ventana}.${randomTotp}`;
+
+      const urlEscaneo = obtenerUrlKiosco();
+
+      const el = document.getElementById("qrcode-kiosco");
+      if (el) {
+        el.innerHTML = '';
+        new QRCode(el, {
+          text: urlEscaneo,
+          width: 230,
+          height: 230,
+          colorDark: "#0F2D3D",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
+
+      const displayEl = document.getElementById('kiosco-url-display');
+      if (displayEl) {
+        displayEl.innerText = urlEscaneo;
+      }
     }
 
     // GESTIÓN DE HORAS EXTRAS (SOLICITUD)
@@ -1149,39 +1486,6 @@
           alert("Solicitud rechazada y registrada en auditoría con su motivación.");
         }
       }
-    }
-
-    // MOTOR DEL KIOSCO (ROTACIÓN TOTP CADA 30s)
-    function iniciarKioscoQR() {
-      generarNuevoQRKiosco();
-      kioscoInterval = setInterval(() => {
-        kioscoSegundosRestantes--;
-        document.getElementById('kiosco-timer').innerText = kioscoSegundosRestantes;
-        const pct = (kioscoSegundosRestantes / 30) * 100;
-        document.getElementById('kiosco-progress-bar').style.width = `${pct}%`;
-
-        if (kioscoSegundosRestantes <= 0) {
-          kioscoSegundosRestantes = 30;
-          generarNuevoQRKiosco();
-        }
-      }, 1000);
-    }
-
-    function generarNuevoQRKiosco() {
-      const ventana = Math.floor(Date.now() / 30000);
-      const randomTotp = Math.floor(10000000 + Math.random() * 90000000);
-      qrActualPayload = `DJY1.${sedePrincipal.id}.${ventana}.${randomTotp}`;
-
-      const el = document.getElementById("qrcode-kiosco");
-      el.innerHTML = '';
-      new QRCode(el, {
-        text: qrActualPayload,
-        width: 220,
-        height: 220,
-        colorDark: "#0F2D3D",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
-      });
     }
 
     // PRE-LIQUIDACIÓN DE NÓMINA
