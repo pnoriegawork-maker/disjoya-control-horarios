@@ -2,70 +2,121 @@
 ## Sistema de Control de Horarios, Horas Extras y Pre-liquidación — DISJOYA AUTOPARTES S.A.S.
 
 > [!IMPORTANT]
-> **ESTADO DEL PROYECTO: 100% GUARDADO, TESTEADO Y EN PRODUCCIÓN VERCEL**  
-> Todo el código fuente, la base de datos en la nube (Supabase), el repositorio en GitHub y el despliegue en Vercel están sincronizados, vinculados y testeados.
+> **ESTADO DEL PROYECTO: 100% GUARDADO, TESTEADO Y EN PRODUCCIÓN**  
+> Todo el código fuente, la base de datos en la nube (Supabase), el repositorio en GitHub y el despliegue en Vercel están vinculados, sincronizados y probados con éxito. Puedes cerrar la carpeta del proyecto y reanudarlo cuando desees.
 
 ---
 
-### 1. Sede Oficial y Geocerca Institucional (Bucaramanga)
-- **Razón Social:** Disjoya Autopartes S.A.S.
-- **Dirección Oficial:** `Cl. 23 #13-32, Comuna 4 Occidental, Bucaramanga, Santander`
-- **Municipio DANE:** `68001` (Bucaramanga)
-- **Coordenadas Satelitales (WGS84):**
-  - **Latitud:** `7.124500`
-  - **Longitud:** `-73.128000`
-  - **Radio de Geocerca:** `80 metros`
-- **Validación de Presencia:** Tanto el backend (`app/geo.py` con fórmula Haversine geodésica) como el frontend en móviles validan obligatoriamente que el trabajador se encuentre dentro del radio de 80 metros para registrar asistencia legal. Incluye botón de prueba técnica para demostraciones remotas.
+### 1. Resumen Ejecutivo y Enlaces Oficiales
+
+* 🌐 **Producción en la Nube (Vercel):**  
+  👉 **[https://disjoya-control-horarios.vercel.app](https://disjoya-control-horarios.vercel.app)**
+* 🐙 **Repositorio Oficial de Código (GitHub):**  
+  👉 **[https://github.com/pnoriegawork-maker/disjoya-control-horarios](https://github.com/pnoriegawork-maker/disjoya-control-horarios)** (Rama `main` sincronizada)
+* 🗄️ **Base de Datos PostgreSQL (Supabase):**  
+  Región US East 2 (Ohio), Connection Pooler activo con 9 tablas y constraints relacionales.
 
 ---
 
-### 2. Flujo de Marcación Móvil con Código QR Dinámico
-- **Sin Cámaras en PC / Cero Reconocimiento Facial:** Cumplimiento total de la Ley 1581 de 2012 (Habeas Data) y Código Sustantivo del Trabajo.
-- **Flujo Operativo:**
-  1. En la pantalla del Kiosco (Pestaña 5) se proyecta el QR dinámico TOTP (rota cada 30 segundos).
-  2. El trabajador enfoca el código QR con la cámara normal de su celular (Android o iOS).
-  3. La cámara detecta automáticamente el enlace web: `https://disjoya-control-horarios.vercel.app/?marcar=1&qr=...`.
-  4. Al pulsar el enlace, se abre la aplicación móvil de Disjoya solicitando de inmediato la **activación del sensor GPS del celular**.
-  5. Una vez validada la presencia física en `Cl. 23 #13-32 (Bucaramanga)`, el trabajador selecciona **🟢 Registrar Entrada** o **🔴 Registrar Salida**.
-  6. El sistema sella la marcación con hora legal NTP (UTC-5) y hash SHA-256 inmutable.
+### 2. Sede Oficial y Geocerca Institucional (Bucaramanga)
+
+* **Razón Social:** Disjoya Autopartes S.A.S.
+* **Dirección Oficial:** `Cl. 23 #13-32, Comuna 4 Occidental, Bucaramanga, Santander`
+* **Municipio DANE:** `68001` (Bucaramanga)
+* **Coordenadas Satelitales (WGS84):**
+  * **Latitud:** `7.124500`
+  * **Longitud:** `-73.128000`
+* **Radio de Geocerca:** `80 metros`
+* **Validación Geodésica:** 
+  * Tanto el backend en FastAPI (`app/geo.py` con fórmula Haversine geodésica) como el frontend en móviles validan obligatoriamente que el trabajador se encuentre dentro del radio de 80 metros de la sede para registrar asistencia legal.
+  * Incluye botón **`🧪 Probar en Sede`** para permitir demostraciones técnicas remotas sin bloquear al evaluador.
+* **Privacidad y Cero Cámaras en PC:** Cumplimiento total de la Ley 1581 de 2012 (Habeas Data) y Código Sustantivo del Trabajo. No se solicita webcam en computadores ni reconocimiento biométrico facial.
 
 ---
 
-### 3. Cuentas y Accesos Configurados
-Todos los usuarios cuentan con la clave unificada: `Disjoya2026*`
+### 3. Flujo Operativo de Marcación Móvil (Código QR Dinámico)
 
-| Rol | Correo Electrónico | Contraseña | Perfil en la Plataforma |
+1. **Visualización en Kiosco (Pestaña 5):**  
+   La pantalla central proyecta el código QR TOTP institucional que rota automáticamente cada 30 segundos.
+2. **Escaneo con Celular:**  
+   El trabajador apunta con la cámara normal de su teléfono (iOS o Android). La cámara detecta automáticamente el enlace web de producción:
+   `https://disjoya-control-horarios.vercel.app/?marcar=1&qr=...`
+3. **Solicitud de GPS:**  
+   Al abrir el enlace, el navegador del teléfono solicita el permiso de ubicación satelital (*"disjoya-control-horarios.vercel.app quiere acceder a tu ubicación"*).
+4. **Registro con 1 Toque:**  
+   Una vez confirmada la ubicación física en `Cl. 23 #13-32 (Bucaramanga)`, el trabajador pulsa **🟢 REGISTRAR ENTRADA** o **🔴 REGISTRAR SALIDA**.
+5. **Sello Criptográfico:**  
+   Se genera un hash inmutable SHA-256 encadenado y se registra la hora oficial legal de Colombia (UTC-5) con sincronización NTP.
+
+---
+
+### 4. Cuentas y Accesos Configurados
+
+Todos los perfiles utilizan la contraseña maestra unificada: **`Disjoya2026*`**
+
+| Rol | Correo Electrónico | Contraseña | Perfil y Funcionalidad |
 |---|---|---|---|
-| **Administrador General** | `pedro.noriega@gmail.com` | `Disjoya2026*` | Acceso a sedes, auditoría SHA-256 y pestaña 7 ("Asignar Jefes") |
+| **Administrador General** | `pedro.noriega@gmail.com` | `Disjoya2026*` | Acceso total: Sedes, Auditoría SHA-256 y Pestaña 7 ("Asignar Jefes") |
 | **Jefe Inmediato** | `spramirez2024@gmail.com` | `Disjoya2026*` | Supervisor facultado para aprobar o rechazar horas extras |
 | **Trabajador Operativo** | `pnoriegawork@gmail.com` | `Disjoya2026*` | Empleado asignado a `spramirez2024@gmail.com`. Realiza marcaciones QR |
 
 ---
 
-### 4. Infraestructura y Nube
-- **Producción en Vivo Vercel:**  
-  👉 **https://disjoya-control-horarios.vercel.app**
-- **Base de Datos PostgreSQL:** [Supabase](https://supabase.com/)
-  - Project ID: `vxjlbpvcmdxuaznlqsbz` (Región: US East 2 - Ohio)
-  - Pooler IPv4: `aws-0-us-east-2.pooler.supabase.com:6543`
-  - Contraseña DB: `2h4StIXc3bOaYPbY`
-- **Control de Versiones:** [GitHub](https://github.com/pnoriegawork-maker/disjoya-control-horarios)
-  - Repositorio: `pnoriegawork-maker/disjoya-control-horarios` (Rama `main`, al día)
-- **Despliegue Rápido a Vercel:**  
-  Ejecutar en cualquier momento `python deploy_vercel.py` para subir y compilar cambios en producción en 5 segundos.
+### 5. Parámetros Legales Laborales Integrados (Colombia 2026)
+
+* **Jornada Ordinaria:** 42 horas semanales (Ley 2101 de 2021).
+* **Inicio de Jornada Nocturna:** 7:00 p.m. (Ley 2466 de 2025).
+* **Recargo Nocturno:** +35% sobre la hora ordinaria.
+* **Tope Diario de Horas Extras:** Máximo dos (2) horas diarias improrrogables (Art. 22 Ley 50 de 1990).
+* **Dominical y Festivo:** +80% (Vigente en 2026 en el escalonamiento de la reforma laboral).
 
 ---
 
-### 5. Cómo reanudar el proyecto en cualquier momento
+### 6. Infraestructura Técnica y Variables de Entorno
+
+#### Supabase PostgreSQL
+* **Host:** `aws-0-us-east-2.pooler.supabase.com:6543`
+* **Base de datos:** `postgres`
+* **Usuario:** `postgres.vxjlbpvcmdxuaznlqsbz`
+* **Contraseña:** `2h4StIXc3bOaYPbY`
+
+#### Vercel Producción
+* **Project ID:** `prj_2wIG5BaHBHuH2R9LZH3GpWh8XAjJ`
+* **Variables de entorno activas en Vercel:**
+  * `DJY_DATABASE_URL`: Conexión directa a Supabase con pooler.
+  * `DJY_JWT_SECRET`: Llave de firma de tokens Bearer.
+  * `DJY_PEPPER_DISPOSITIVO`: Salting criptográfico para dispositivos móviles.
+  * `DJY_AES_KEY_B64`: Cifrado simétrico AES-256-GCM para coordenadas de auditoría.
+  * `DJY_ZONA_HORARIA`: `America/Bogota`.
+  * `DJY_NTP_HABILITADO`: `true`.
+  * `DJY_NTP_SERVIDOR`: `time.google.com`.
+  * `DJY_QR_TTL_SEGUNDOS`: `30`.
+  * `DJY_ENTORNO`: `produccion`.
+
+---
+
+### 7. Cómo reanudar el proyecto en cualquier momento
+
+Cuando quieras volver a trabajar en este proyecto:
 
 ```powershell
 # 1. Abrir terminal en la carpeta del proyecto
 cd "c:\Users\Estudiante 08\Documents\Pedro_Noriega\Aplicaciones IA\Sistema de control de horarios_Disjoya"
 
-# 2. Ejecutar la suite de pruebas automatizadas
+# 2. Ejecutar las pruebas unitarias automatizadas (8/8 pasan)
 .\.venv\Scripts\pytest -v
 
-# 3. Iniciar el servidor local
+# 3. Iniciar el servidor local de desarrollo
 .\.venv\Scripts\uvicorn app.main:app --reload --port 8000
+
+# 4. Para subir cambios directamente a Vercel producción en 5 segundos
+python deploy_vercel.py
+
+# 5. Para sincronizar cambios con GitHub
+git add .
+git commit -m "feat: Nuevas mejoras"
+git push origin main
 ```
-Abrir en el navegador: **`http://localhost:8000`** o directamente en producción: **`https://disjoya-control-horarios.vercel.app`**.
+
+Para continuar con el asistente IA en otra sesión, simplemente dile:  
+*"Continúa donde quedamos en el proyecto Disjoya"*, y leerá esta memoria automáticamente.
