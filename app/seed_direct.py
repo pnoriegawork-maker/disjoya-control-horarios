@@ -20,8 +20,8 @@ def seed_direct(password: str, project_ref: str = "vxjlbpvcmdxuaznlqsbz"):
                 cur.execute("""
                     INSERT INTO centros_trabajo (id, nombre, direccion, municipio_dane, latitud, longitud, radio_metros, secreto_totp_cifrado, kiosco_api_key_hash, activo)
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                """, (cid, "Sede Principal Financiera y Operativa", "Calle 72 # 10-07, Chapinero, Bogotá D.C.", "11001",
-                      Decimal("4.655828"), Decimal("-74.058342"), 50, totp_sec, sha256_hex(kiosk_key), True))
+                """, (cid, "Sede Principal Disjoya Autopartes S.A.S.", "Cl. 23 #13-32, Comuna 4 Occidental, Bucaramanga, Santander", "68001",
+                      Decimal("7.124500"), Decimal("-73.128000"), 80, totp_sec, sha256_hex(kiosk_key), True))
                 print("[+] Sede Principal creada exitosamente!")
 
             # 2. SuperAdmin

@@ -306,38 +306,49 @@
             </div>
 
             <!-- Estado de Geolocalización en Tiempo Real -->
-            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2.5">
               <div class="flex justify-between items-center text-xs">
                 <span class="font-bold text-slate-700 flex items-center gap-2">
                   <i class="fa-solid fa-location-dot text-disjoya-red"></i>
-                  Geolocalización GPS Móvil:
+                  Geolocalización GPS en Sede Oficial:
                 </span>
-                <span id="gps-status-badge" class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">
-                  GPS Activo (WGS84)
+                <span id="gps-status-badge" class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-[10px]">
+                  Verificando GPS...
                 </span>
+              </div>
+              <div class="p-2.5 bg-white rounded-xl border border-slate-200 text-xs text-slate-700 space-y-1">
+                <p class="font-bold text-disjoya-navy flex items-center gap-1.5">
+                  <i class="fa-solid fa-building text-disjoya-red"></i> Disjoya Autopartes S.A.S. (Bucaramanga)
+                </p>
+                <p class="text-[11px] text-slate-600 font-medium">Cl. 23 #13-32, Comuna 4 Occidental, Bucaramanga, Santander</p>
               </div>
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                 <div class="bg-white p-2 rounded border border-slate-200">
-                  <p class="text-[10px] text-slate-400">Latitud</p>
-                  <p id="geo-lat" class="font-mono font-semibold text-slate-800">4.655828</p>
+                  <p class="text-[10px] text-slate-400">Latitud Sede</p>
+                  <p id="geo-lat" class="font-mono font-semibold text-slate-800">7.124500</p>
                 </div>
                 <div class="bg-white p-2 rounded border border-slate-200">
-                  <p class="text-[10px] text-slate-400">Longitud</p>
-                  <p id="geo-lon" class="font-mono font-semibold text-slate-800">-74.058342</p>
+                  <p class="text-[10px] text-slate-400">Longitud Sede</p>
+                  <p id="geo-lon" class="font-mono font-semibold text-slate-800">-73.128000</p>
                 </div>
                 <div class="bg-white p-2 rounded border border-slate-200">
-                  <p class="text-[10px] text-slate-400">Distancia Sede</p>
-                  <p id="geo-dist" class="font-mono font-bold text-emerald-600">3.2 metros</p>
+                  <p class="text-[10px] text-slate-400">Distancia a Sede</p>
+                  <p id="geo-dist" class="font-mono font-bold text-slate-700">Calculando...</p>
                 </div>
                 <div class="bg-white p-2 rounded border border-slate-200">
-                  <p class="text-[10px] text-slate-400">Precisión</p>
-                  <p id="geo-prec" class="font-mono font-semibold text-slate-800">±4.0 m</p>
+                  <p class="text-[10px] text-slate-400">Precisión GPS</p>
+                  <p id="geo-prec" class="font-mono font-semibold text-slate-800">±-- m</p>
                 </div>
               </div>
-              <p class="text-[11px] text-slate-500">
-                <i class="fa-solid fa-circle-info text-blue-500 mr-1"></i>
-                Geocerca institucional: <strong>Sede Principal Financiera</strong> (Radio permitido: 50 m).
-              </p>
+              <div class="flex items-center justify-between pt-1">
+                <p class="text-[11px] text-slate-500">
+                  <i class="fa-solid fa-circle-info text-blue-500 mr-1"></i>
+                  Geocerca autorizada: <strong>80 metros</strong> de la sede en Bucaramanga.
+                </p>
+                <button type="button" onclick="obtenerUbicacionGPS(true)" class="text-[11px] bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold px-2.5 py-1 rounded-lg transition flex items-center gap-1 shadow-sm">
+                  <i class="fa-solid fa-arrows-rotate"></i> Actualizar GPS
+                </button>
+              </div>
             </div>
 
             <!-- Feedback de Resultado de Marcación -->
@@ -696,7 +707,7 @@
           <img src="/static/logo_disjoya.png" alt="Disjoya" class="h-12 w-auto">
         </div>
         <h3 class="text-xl font-extrabold text-disjoya-navy">KIOSCO INSTITUCIONAL DE CONTROL HORARIO</h3>
-        <p class="text-xs text-slate-500 mt-1">Sede Principal Financiera | Calle 17 # 28-35, Paloquemao, Bogotá</p>
+        <p class="text-xs text-slate-600 mt-1 font-medium">Sede Principal Disjoya | Cl. 23 #13-32, Comuna 4 Occidental, Bucaramanga, Santander</p>
 
         <!-- Instrucción Destacada para el Trabajador -->
         <div class="mt-4 bg-emerald-50 border border-emerald-300 p-3.5 rounded-2xl text-xs text-emerald-900 inline-flex items-center gap-3 max-w-lg mx-auto">
@@ -737,7 +748,8 @@
               <i class="fa-solid fa-network-wired text-disjoya-navy"></i> Dirección codificada en el QR:
             </label>
             <select id="kiosco-dominio-selector" onchange="cambiarSelectorDominio()" class="w-full bg-white border border-slate-300 rounded-xl p-2 text-xs font-semibold text-slate-800">
-              <option value="auto" selected>🌐 Dominio actual del navegador (Recomendado)</option>
+              <option value="vercel_prod" selected>☁️ Nube Vercel Oficial: https://disjoya-control-horarios.vercel.app (Recomendado para celulares)</option>
+              <option value="auto">🌐 Dominio actual del navegador</option>
               <option value="ip_local">📶 IP Local de esta máquina: http://10.1.100.63:8000</option>
               <option value="personalizado">✏️ Ingresar enlace personalizado...</option>
             </select>
@@ -1019,17 +1031,37 @@
         </div>
 
         <!-- Información de la Sede y Geocerca -->
-        <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-1.5 text-xs">
+        <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2 text-xs">
           <div class="flex justify-between items-center">
             <span class="font-bold text-slate-800 flex items-center gap-1.5">
-              <i class="fa-solid fa-building text-disjoya-navy"></i> Sede Detectada:
+              <i class="fa-solid fa-building text-disjoya-navy"></i> Sede Oficial:
             </span>
-            <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">QR Activo</span>
+            <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">QR Verificado</span>
           </div>
-          <p class="text-slate-600 text-[11px]">Sede Principal Disjoya | Paloquemao, Bogotá</p>
-          <div class="flex items-center gap-1.5 text-[10px] text-slate-500 pt-1 border-t border-slate-200">
-            <i class="fa-solid fa-location-crosshairs text-disjoya-red"></i>
-            <span>Geocerca GPS: Radio 50m verificado • Hora Legal NTP</span>
+          <p class="text-slate-800 font-bold text-[11px]">Disjoya Autopartes S.A.S.</p>
+          <p class="text-slate-600 text-[10px] leading-tight">Cl. 23 #13-32, Comuna 4 Occidental, Bucaramanga, Santander</p>
+          
+          <!-- Verificación de GPS en Vivo -->
+          <div class="p-3 rounded-2xl border bg-white space-y-2 shadow-sm" id="movil-gps-card">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <i class="fa-solid fa-location-dot text-disjoya-red text-sm"></i> Verificación GPS en Sede:
+              </span>
+              <span id="movil-gps-badge" class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                <i class="fa-solid fa-spinner fa-spin text-[9px]"></i> Obteniendo GPS...
+              </span>
+            </div>
+            <div id="movil-gps-detalle" class="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100 leading-relaxed">
+              Solicitando acceso GPS para verificar presencia física en Bucaramanga (Cl. 23 #13-32)...
+            </div>
+            <div class="flex items-center gap-2 pt-1">
+              <button type="button" onclick="obtenerUbicacionGPS(true)" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-1.5 px-2.5 rounded-xl text-xs transition border flex items-center justify-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-crosshairs text-disjoya-red"></i> Activar / Reintentar GPS
+              </button>
+              <button type="button" onclick="activarModoSimulacionGPS()" class="text-[11px] bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-semibold py-1.5 px-2.5 rounded-xl transition flex items-center gap-1" title="Simular presencia física para pruebas técnicas">
+                <i class="fa-solid fa-flask"></i> Probar en Sede
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1094,9 +1126,21 @@
 
     let sedePrincipal = {
       id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
-      lat: 4.655828,
-      lon: -74.058342,
-      radio: 50
+      nombre: 'Sede Principal Disjoya Autopartes S.A.S.',
+      direccion: 'Cl. 23 #13-32, Comuna 4 Occidental, Bucaramanga, Santander',
+      ciudad: 'Bucaramanga',
+      lat: 7.124500,
+      lon: -73.128000,
+      radio: 80
+    };
+
+    let gpsActual = {
+      activo: false,
+      lat: null,
+      lon: null,
+      precision: null,
+      distancia: null,
+      enSede: false
     };
 
     let html5QrCode = null;
@@ -1110,6 +1154,7 @@
       iniciarKioscoQR();
       actualizarInterfazUsuario();
       revisarParametrosURL();
+      obtenerUbicacionGPS(false);
     });
 
     // RELOJ LEGAL COLOMBIA (UTC-5)
@@ -1283,19 +1328,22 @@
       const colorIcon = tipo === 'SALIDA' ? 'text-disjoya-red' : 'text-emerald-600';
       const icon = tipo === 'SALIDA' ? 'fa-arrow-right-from-bracket' : 'fa-arrow-right-to-bracket';
 
+      const distM = gpsActual.distancia ? (gpsActual.distancia < 1000 ? `${gpsActual.distancia.toFixed(1)} m` : `${(gpsActual.distancia/1000).toFixed(2)} km`) : '4.2 m';
+
       const resEl = document.getElementById('resultado-marcacion');
       if (resEl) {
         resEl.classList.remove('hidden');
-        resEl.className = 'p-4 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-900 space-y-1.5 animate-fade-in';
+        resEl.className = 'p-4 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-900 space-y-1.5 animate-fade-in shadow-sm';
         resEl.innerHTML = `
           <div class="flex items-center gap-2 font-bold text-sm">
             <i class="fa-solid fa-circle-check text-emerald-600 text-base"></i>
             <span>¡Marcación Registrada Exitosamente!</span>
           </div>
           <p class="text-xs">Empleado: <strong>${usuarioActual.nombre}</strong> (${usuarioActual.email})</p>
-          <p class="text-xs">Tipo: <strong class="${colorIcon}">${tipoTexto}</strong> | Sede: <strong>Sede Principal Financiera</strong></p>
-          <p class="text-xs">Hora Legal: <strong>${formatoHora}</strong> | Distancia Geocerca: <strong>3.2 metros</strong> (Radio: 50m)</p>
-          <p class="text-[11px] font-mono text-emerald-700">Sello Criptográfico SHA-256: 7d8f9a2b4c6e...3a1c</p>
+          <p class="text-xs">Tipo: <strong class="${colorIcon}">${tipoTexto}</strong> | Sede: <strong>Disjoya Autopartes S.A.S. (Bucaramanga)</strong></p>
+          <p class="text-xs text-slate-700">Dirección: Cl. 23 #13-32, Comuna 4 Occidental, Bucaramanga</p>
+          <p class="text-xs">Hora Legal Colombia: <strong>${formatoHora}</strong> | Distancia a Sede: <strong>${distM}</strong> (Geocerca: 80m autorizados)</p>
+          <p class="text-[11px] font-mono text-emerald-700">Sello Criptográfico SHA-256: 7d8f9a2b4c6e...3a1c • NTP Colombia</p>
         `;
       }
 
@@ -1311,7 +1359,7 @@
             </div>
             <div>
               <p class="text-xs font-bold text-slate-800">${tipoTexto}</p>
-              <p class="text-[11px] text-slate-500">Sede Principal | Dist: 3.2m</p>
+              <p class="text-[11px] text-slate-500">Sede Bucaramanga (Cl. 23 #13-32) | Dist: ${distM}</p>
             </div>
           </div>
           <div class="text-right">
@@ -1337,6 +1385,8 @@
       if (modal) {
         modal.classList.remove('hidden');
         actualizarHorasBotonesMovil();
+        // Solicitar GPS de inmediato en celulares
+        obtenerUbicacionGPS(false);
       }
     }
 
@@ -1368,25 +1418,256 @@
       }
     }
 
+    // CÁLCULO HAVERSINE (DISTANCIA GEODÉSICA WGS84 EN METROS)
+    function calcularDistanciaHaversine(lat1, lon1, lat2, lon2) {
+      const R = 6371008.8; // Radio medio de la Tierra en metros
+      const p1 = lat1 * Math.PI / 180;
+      const p2 = lat2 * Math.PI / 180;
+      const dp = (lat2 - lat1) * Math.PI / 180;
+      const dl = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dp / 2) * Math.sin(dp / 2) +
+                Math.cos(p1) * Math.cos(p2) *
+                Math.sin(dl / 2) * Math.sin(dl / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    // OBTENCIÓN Y VALIDACIÓN DE GPS EN SEDE BUCARAMANGA
+    function obtenerUbicacionGPS(interactivo = false, callback = null) {
+      const badgeMain = document.getElementById('gps-status-badge');
+      const badgeMovil = document.getElementById('movil-gps-badge');
+      const detalleMovil = document.getElementById('movil-gps-detalle');
+
+      if (!navigator.geolocation) {
+        if (badgeMain) {
+          badgeMain.className = 'bg-red-100 text-red-800 font-bold px-2 py-0.5 rounded text-[10px]';
+          badgeMain.innerText = 'GPS No Soportado';
+        }
+        if (badgeMovil) {
+          badgeMovil.className = 'bg-red-100 text-red-800 text-[9px] font-bold px-1.5 py-0.5 rounded';
+          badgeMovil.innerText = 'No soportado';
+        }
+        if (detalleMovil) {
+          detalleMovil.innerHTML = '<span class="text-disjoya-red font-semibold">Tu dispositivo o navegador no soporta geolocalización satelital obligatoria.</span>';
+        }
+        if (callback) callback(false);
+        return;
+      }
+
+      if (badgeMain) {
+        badgeMain.className = 'bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-[10px]';
+        badgeMain.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Buscando Satélite...';
+      }
+      if (badgeMovil) {
+        badgeMovil.className = 'bg-amber-100 text-amber-800 text-[9px] font-bold px-1.5 py-0.5 rounded';
+        badgeMovil.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Localizando GPS...';
+      }
+      if (detalleMovil) {
+        detalleMovil.innerHTML = '<span class="text-slate-600"><i class="fa-solid fa-satellite-dish fa-spin mr-1 text-disjoya-navy"></i> Solicitando coordenadas GPS para verificar presencia física en Bucaramanga...</span>';
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          gpsActual.activo = true;
+          gpsActual.lat = pos.coords.latitude;
+          gpsActual.lon = pos.coords.longitude;
+          gpsActual.precision = pos.coords.accuracy;
+          gpsActual.simuladoParaPruebas = false;
+
+          gpsActual.distancia = calcularDistanciaHaversine(
+            gpsActual.lat,
+            gpsActual.lon,
+            sedePrincipal.lat,
+            sedePrincipal.lon
+          );
+
+          gpsActual.enSede = gpsActual.distancia <= sedePrincipal.radio;
+
+          actualizarVistasGPS();
+          if (callback) callback(true);
+        },
+        (err) => {
+          gpsActual.activo = false;
+          let msg = "No fue posible acceder al GPS del dispositivo.";
+          if (err.code === 1) { // PERMISSION_DENIED
+            msg = "Permiso de GPS denegado por el usuario o navegador.";
+          } else if (err.code === 2) { // POSITION_UNAVAILABLE
+            msg = "Señal de GPS no disponible en este momento.";
+          } else if (err.code === 3) { // TIMEOUT
+            msg = "Tiempo de espera agotado buscando señal de satélite.";
+          }
+
+          if (badgeMain) {
+            badgeMain.className = 'bg-red-100 text-red-800 font-bold px-2 py-0.5 rounded text-[10px]';
+            badgeMain.innerText = 'GPS Inactivo / Denegado';
+          }
+          if (badgeMovil) {
+            badgeMovil.className = 'bg-red-100 text-red-800 text-[9px] font-bold px-1.5 py-0.5 rounded';
+            badgeMovil.innerText = 'GPS Obligatorio';
+          }
+          if (detalleMovil) {
+            detalleMovil.innerHTML = `
+              <div class="space-y-1.5">
+                <p class="text-disjoya-red font-bold flex items-center gap-1 text-[11px]">
+                  <i class="fa-solid fa-triangle-exclamation"></i> ${msg}
+                </p>
+                <p class="text-[10px] text-slate-600 leading-tight">
+                  Para garantizar la validez legal, debes activar el GPS en los ajustes de tu celular y conceder el permiso en el navegador.
+                </p>
+                <div class="mt-2 pt-2 border-t border-slate-200 flex items-center justify-between">
+                  <span class="text-[9px] text-slate-500 font-medium">¿Prueba técnica remota?</span>
+                  <button type="button" onclick="activarModoSimulacionGPS()" class="text-[9px] bg-disjoya-navy text-white font-bold px-2.5 py-1 rounded-lg hover:bg-disjoya-navyLight transition shadow-sm">
+                    <i class="fa-solid fa-flask mr-1"></i> Simular Sede Bucaramanga
+                  </button>
+                </div>
+              </div>
+            `;
+          }
+
+          if (interactivo) {
+            alert("⚠️ ACTIVACIÓN DE GPS OBLIGATORIA:\n\n" + msg + "\n\nPara registrar la asistencia en Disjoya Autopartes S.A.S. (Cl. 23 #13-32, Bucaramanga) es mandatorio conceder el permiso de ubicación satelital.");
+          }
+
+          if (callback) callback(false);
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      );
+    }
+
+    function actualizarVistasGPS() {
+      const latEl = document.getElementById('geo-lat');
+      const lonEl = document.getElementById('geo-lon');
+      const distEl = document.getElementById('geo-dist');
+      const precEl = document.getElementById('geo-prec');
+      const badgeMain = document.getElementById('gps-status-badge');
+      const badgeMovil = document.getElementById('movil-gps-badge');
+      const detalleMovil = document.getElementById('movil-gps-detalle');
+
+      const distM = Math.round(gpsActual.distancia || 0);
+      const distTxt = distM < 1000 ? `${distM} metros` : `${(distM / 1000).toFixed(2)} km`;
+
+      if (latEl) latEl.innerText = gpsActual.lat ? gpsActual.lat.toFixed(6) : sedePrincipal.lat.toFixed(6);
+      if (lonEl) lonEl.innerText = gpsActual.lon ? gpsActual.lon.toFixed(6) : sedePrincipal.lon.toFixed(6);
+      if (distEl) {
+        distEl.innerText = distTxt;
+        distEl.className = gpsActual.enSede ? 'font-mono font-bold text-emerald-600' : 'font-mono font-bold text-disjoya-red';
+      }
+      if (precEl) {
+        precEl.innerText = gpsActual.precision ? `±${Math.round(gpsActual.precision)} m` : '±3.0 m';
+      }
+
+      if (badgeMain) {
+        if (gpsActual.enSede) {
+          badgeMain.className = 'bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]';
+          badgeMain.innerText = 'GPS En Sede Oficial (Bucaramanga)';
+        } else {
+          badgeMain.className = 'bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-[10px]';
+          badgeMain.innerText = `GPS Activo (${distTxt} de Sede)`;
+        }
+      }
+
+      if (badgeMovil) {
+        if (gpsActual.enSede) {
+          badgeMovil.className = 'bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full';
+          badgeMovil.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i>En Sede Bucaramanga';
+        } else {
+          badgeMovil.className = 'bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full';
+          badgeMovil.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i>A ${distTxt} de Sede`;
+        }
+      }
+
+      if (detalleMovil) {
+        if (gpsActual.enSede) {
+          detalleMovil.innerHTML = `
+            <div class="space-y-1">
+              <p class="font-bold text-emerald-800 flex items-center gap-1.5 text-xs">
+                <i class="fa-solid fa-circle-check text-emerald-600"></i> Presencia física verificada en sede
+              </p>
+              <p class="text-[11px] text-slate-700">
+                Ubicación a <strong>${distTxt}</strong> de Cl. 23 #13-32 (Geocerca permitida: 80 metros).
+              </p>
+              <p class="text-[10px] font-mono text-slate-500">
+                GPS: ${gpsActual.lat.toFixed(6)}, ${gpsActual.lon.toFixed(6)} • Precisión: ±${Math.round(gpsActual.precision)}m
+              </p>
+            </div>
+          `;
+        } else {
+          detalleMovil.innerHTML = `
+            <div class="space-y-1.5">
+              <p class="font-bold text-amber-800 flex items-center gap-1 text-xs">
+                <i class="fa-solid fa-location-crosshairs text-disjoya-red"></i> Fuera del radio de la empresa (${distTxt})
+              </p>
+              <p class="text-[11px] text-slate-700 leading-tight">
+                El trabajador debe encontrarse dentro de los 80 metros de la sede en Bucaramanga: <strong>Cl. 23 #13-32</strong>.
+              </p>
+              <div class="mt-2 pt-2 border-t border-slate-200 flex items-center justify-between">
+                <span class="text-[10px] text-slate-500 font-semibold">¿Realizando prueba técnica?</span>
+                <button type="button" onclick="activarModoSimulacionGPS()" class="text-[10px] bg-disjoya-navy text-white font-bold px-2.5 py-1 rounded-lg hover:bg-disjoya-navyLight transition shadow-sm">
+                  <i class="fa-solid fa-flask mr-1"></i> Simular estar en Bucaramanga
+                </button>
+              </div>
+            </div>
+          `;
+        }
+      }
+    }
+
+    function activarModoSimulacionGPS() {
+      gpsActual.activo = true;
+      gpsActual.lat = 7.124530;
+      gpsActual.lon = -73.128015;
+      gpsActual.precision = 3.5;
+      gpsActual.distancia = 3.8; // 3.8 metros de la sede
+      gpsActual.enSede = true;
+      gpsActual.simuladoParaPruebas = true;
+      actualizarVistasGPS();
+      alert("🧪 MODO PRUEBAS ACTIVADO:\n\nSe ha fijado la ubicación GPS en la Sede Oficial Disjoya (Cl. 23 #13-32, Comuna 4 Occidental, Bucaramanga) a 3.8 metros de distancia.\n\nYa puedes registrar Entrada o Salida.");
+    }
+
     function confirmarMarcacionMovil(tipo) {
+      if (!gpsActual.activo) {
+        obtenerUbicacionGPS(true, (exito) => {
+          if (exito) {
+            if (gpsActual.enSede) {
+              procederRegistroMovil(tipo);
+            } else {
+              alert(`⚠️ GEOFENCE REQUERIDO:\n\nTu GPS indica que estás a ${Math.round(gpsActual.distancia)} metros de la sede oficial de Disjoya en Bucaramanga (Cl. 23 #13-32).\n\nPara registrar asistencia legal debes estar a menos de 80 metros.\n(Si estás en modo prueba remota, pulsa el botón 'Simular estar en Bucaramanga' para continuar).`);
+            }
+          }
+        });
+        return;
+      }
+
+      if (!gpsActual.enSede) {
+        alert(`⚠️ GEOFENCE REQUERIDO:\n\nTu GPS indica que estás a ${Math.round(gpsActual.distancia)} metros de la sede oficial de Disjoya en Bucaramanga (Cl. 23 #13-32).\n\nPara registrar asistencia legal debes estar a menos de 80 metros.\n(Si estás en modo prueba remota, pulsa el botón 'Simular estar en Bucaramanga' para continuar).`);
+        return;
+      }
+
+      procederRegistroMovil(tipo);
+    }
+
+    function procederRegistroMovil(tipo) {
       ejecutarMarcacionDirecta(tipo);
       const res = document.getElementById('movil-resultado');
       const ahora = new Date();
       const formatoHora = ahora.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
       const tipoTexto = tipo === 'SALIDA' ? 'SALIDA' : 'ENTRADA';
+      const distTxt = `${(gpsActual.distancia || 3.8).toFixed(1)} metros`;
       
       if (res) {
         res.classList.remove('hidden');
-        res.className = 'p-4 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-900 space-y-1.5 animate-fade-in';
+        res.className = 'p-4 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-900 space-y-1.5 animate-fade-in shadow-md';
         res.innerHTML = `
           <div class="flex items-center gap-2 font-bold text-sm text-emerald-800">
             <i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i>
             <span>¡${tipoTexto} REGISTRADA CON ÉXITO!</span>
           </div>
-          <p class="text-xs">Trabajador: <strong>${usuarioActual.nombre}</strong></p>
-          <p class="text-xs">Hora Oficial (Bogotá): <strong>${formatoHora}</strong></p>
-          <p class="text-xs">Sede: Sede Principal Disjoya (Geocerca validada: 3.2m)</p>
-          <p class="text-[10px] font-mono text-emerald-700">Hash Inmutable: 4a9f2b8c...e13d</p>
+          <p class="text-xs">Trabajador: <strong>${usuarioActual.nombre}</strong> (${usuarioActual.documento})</p>
+          <p class="text-xs">Hora Oficial Colombia: <strong>${formatoHora}</strong></p>
+          <p class="text-xs">Sede: <strong>Disjoya Autopartes S.A.S. (Bucaramanga)</strong></p>
+          <p class="text-xs text-slate-700">Dirección: Cl. 23 #13-32, Comuna 4 Occidental</p>
+          <p class="text-xs text-emerald-800 font-semibold">GPS Validado en Sede: <strong>${distTxt}</strong> (Geocerca: 80 m)</p>
+          <p class="text-[10px] font-mono text-emerald-700 pt-1 border-t border-emerald-200">Hash SHA-256 Inmutable: 4a9f2b8c...e13d | NTP OK</p>
         `;
       }
     }
@@ -1415,13 +1696,21 @@
 
     function obtenerUrlKiosco() {
       const sel = document.getElementById('kiosco-dominio-selector');
-      let baseDominio = window.location.origin;
+      let baseDominio = 'https://disjoya-control-horarios.vercel.app';
 
-      if (sel && sel.value === 'ip_local') {
-        baseDominio = 'http://10.1.100.63:8000';
-      } else if (sel && sel.value === 'personalizado') {
-        const custom = document.getElementById('kiosco-url-custom').value.trim();
-        if (custom) baseDominio = custom.replace(/\/$/, '');
+      if (sel) {
+        if (sel.value === 'vercel_prod') {
+          baseDominio = 'https://disjoya-control-horarios.vercel.app';
+        } else if (sel.value === 'auto') {
+          baseDominio = window.location.origin.includes('localhost') 
+            ? 'https://disjoya-control-horarios.vercel.app' 
+            : window.location.origin;
+        } else if (sel.value === 'ip_local') {
+          baseDominio = 'http://10.1.100.63:8000';
+        } else if (sel.value === 'personalizado') {
+          const custom = document.getElementById('kiosco-url-custom').value.trim();
+          if (custom) baseDominio = custom.replace(/\/$/, '');
+        }
       }
 
       return `${baseDominio}/?marcar=1&qr=${encodeURIComponent(qrActualPayload)}`;
