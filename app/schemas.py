@@ -72,6 +72,10 @@ class EmpleadoOut(BaseModel):
     centro_trabajo_id: uuid.UUID | None
 
 
+class AsignarJefeIn(BaseModel):
+    jefe_inmediato_id: uuid.UUID | None = Field(default=None, description="UUID del jefe que autoriza las horas extras")
+
+
 class _RangoHorario(BaseModel):
     inicio: datetime
     fin: datetime

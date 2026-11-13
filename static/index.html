@@ -107,37 +107,41 @@
             </button>
             
             <!-- Dropdown Roles -->
-            <div id="menu-roles" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl py-2 z-50 border border-slate-200 text-slate-800">
+            <div id="menu-roles" class="hidden absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-2xl py-2 z-50 border border-slate-200 text-slate-800">
               <div class="px-4 py-2 border-b border-slate-100">
-                <p class="text-xs text-slate-400 font-semibold uppercase">Cambiar Perfil de Demostración</p>
+                <p class="text-xs text-slate-400 font-semibold uppercase">Usuarios de Prueba Configurados</p>
               </div>
-              <button onclick="cambiarPerfil('TRABAJADOR', 'Pedro Noriega', 'CC 1020304050')" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-3 text-xs transition">
-                <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+              
+              <!-- 1. Administrador General -->
+              <button onclick="cambiarPerfil('AUDITOR_SUPERADMIN', 'Pedro Noriega (Admin)', 'CC 79001001', 'pedro.noriega@gmail.com')" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-3 text-xs transition border-b border-slate-100">
+                <span class="w-3 h-3 rounded-full bg-disjoya-red shrink-0"></span>
                 <div>
-                  <p class="font-bold text-slate-900">Pedro Noriega</p>
-                  <p class="text-slate-500 text-[11px]">Trabajador Operativo (PWA)</p>
+                  <p class="font-bold text-slate-900">Pedro Noriega (Admin)</p>
+                  <p class="text-slate-500 text-[11px] font-mono">pedro.noriega@gmail.com</p>
+                  <span class="text-[9px] bg-red-100 text-disjoya-red px-1.5 py-0.2 rounded font-bold uppercase">Administrador / Total</span>
                 </div>
               </button>
-              <button onclick="cambiarPerfil('JEFE_INMEDIATO', 'Carlos Jefe', 'CC 11111111')" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-3 text-xs transition">
-                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+
+              <!-- 2. Jefe que autoriza horas extras -->
+              <button onclick="cambiarPerfil('JEFE_INMEDIATO', 'S.P. Ramírez (Jefe)', 'CC 52002002', 'spramirez2024@gmail.com')" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-3 text-xs transition border-b border-slate-100">
+                <span class="w-3 h-3 rounded-full bg-amber-500 shrink-0"></span>
                 <div>
-                  <p class="font-bold text-slate-900">Carlos Jefe</p>
-                  <p class="text-slate-500 text-[11px]">Jefe Inmediato / Aprobador</p>
+                  <p class="font-bold text-slate-900">S.P. Ramírez (Jefe Inmediato)</p>
+                  <p class="text-slate-500 text-[11px] font-mono">spramirez2024@gmail.com</p>
+                  <span class="text-[9px] bg-amber-100 text-amber-800 px-1.5 py-0.2 rounded font-bold uppercase">Autorizador Horas Extras</span>
                 </div>
               </button>
-              <button onclick="cambiarPerfil('NOMINA_RRHH', 'Ana Rodríguez', 'CC 22222222')" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-3 text-xs transition">
-                <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+
+              <!-- 3. Trabajador que solicita horas extras -->
+              <button onclick="cambiarPerfil('TRABAJADOR', 'Pedro Noriega (Trabajador)', 'CC 1020304050', 'pnoriegawork@gmail.com')" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-3 text-xs transition">
+                <span class="w-3 h-3 rounded-full bg-blue-500 shrink-0"></span>
                 <div>
-                  <p class="font-bold text-slate-900">Ana Rodríguez</p>
-                  <p class="text-slate-500 text-[11px]">Gestor de Nómina y RRHH</p>
+                  <p class="font-bold text-slate-900">Pedro Noriega (Trabajador)</p>
+                  <p class="text-slate-500 text-[11px] font-mono">pnoriegawork@gmail.com</p>
+                  <span class="text-[9px] bg-blue-100 text-blue-800 px-1.5 py-0.2 rounded font-bold uppercase">Marcación QR & Solicitudes</span>
                 </div>
               </button>
-              <button onclick="cambiarPerfil('AUDITOR_SUPERADMIN', 'SuperAdmin Disjoya', 'CC 99999999')" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-3 text-xs transition">
-                <span class="w-2.5 h-2.5 rounded-full bg-disjoya-red"></span>
-                <div>
-                  <p class="font-bold text-slate-900">SuperAdmin Disjoya</p>
-                  <p class="text-slate-500 text-[11px]">Auditor Forense / SuperAdmin</p>
-                </div>
+            </div>
               </button>
             </div>
           </div>
@@ -171,6 +175,10 @@
         <button onclick="cambiarPestana('tab-auditoria')" id="nav-tab-auditoria" class="nav-btn text-slate-300 hover:text-white hover:bg-disjoya-navyLight px-3.5 py-2 rounded-lg flex items-center space-x-2 transition whitespace-nowrap">
           <i class="fa-solid fa-shield-halved"></i>
           <span>6. Auditoría y Habeas Data</span>
+        </button>
+        <button onclick="cambiarPestana('tab-admin')" id="nav-tab-admin" class="nav-btn text-slate-300 hover:text-white hover:bg-disjoya-navyLight px-3.5 py-2 rounded-lg flex items-center space-x-2 transition whitespace-nowrap">
+          <i class="fa-solid fa-user-gear text-amber-400"></i>
+          <span>7. Asignar Jefes (Admin)</span>
         </button>
       </nav>
     </div>
@@ -471,8 +479,8 @@
               </div>
               <p class="text-xs text-slate-600">Motivo: Entrega de cierre y balance de nómina mensual en sistemas</p>
               <div class="text-[11px] text-slate-400 flex items-center justify-between border-t border-slate-200 pt-1.5">
-                <span>Aprobador: Carlos Jefe</span>
-                <span>Alerta WhatsApp enviada</span>
+                <span>Aprobador Asignado: <strong id="aprobador-display-he" class="text-slate-700">S.P. Ramírez (spramirez2024@gmail.com)</strong></span>
+                <span class="text-emerald-600 font-semibold"><i class="fa-brands fa-whatsapp text-emerald-500"></i> Alerta Disparada</span>
               </div>
             </div>
           </div>
@@ -504,8 +512,8 @@
           <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
             <div class="flex items-start justify-between">
               <div>
-                <p class="text-sm font-bold text-slate-900">Pedro Noriega - Desarrollador Full Stack</p>
-                <p class="text-xs text-slate-500">Documento: CC 1020304050 | Sede Principal</p>
+                <p class="text-sm font-bold text-slate-900">Pedro Noriega (pnoriegawork@gmail.com)</p>
+                <p class="text-xs text-slate-500">Documento: CC 1020304050 | Jefe Aprobador: S.P. Ramírez (spramirez2024@gmail.com)</p>
               </div>
               <span class="text-xs font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full">Requiere Decisión</span>
             </div>
@@ -740,6 +748,138 @@
 
     </div>
 
+    <!-- ========================================================================= -->
+    <!-- PESTAÑA 7: PANEL DE ADMINISTRADOR (ASIGNACIÓN DE JEFES Y GESTIÓN) -->
+    <!-- ========================================================================= -->
+    <div id="tab-admin" class="pestana-seccion hidden space-y-6">
+      
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-200 gap-3">
+          <div>
+            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-users-gear text-disjoya-red"></i>
+              Panel de Administración y Asignación de Jefaturas
+            </h3>
+            <p class="text-xs text-slate-500">
+              Administrador: <strong>pedro.noriega@gmail.com</strong> | Configura qué jefe autoriza las horas extras de cada trabajador
+            </p>
+          </div>
+          <span class="bg-red-100 text-disjoya-red text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider self-start md:self-auto">
+            Acceso SuperAdmin
+          </span>
+        </div>
+
+        <!-- Tarjetas Resumen de Roles -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <p class="text-[11px] font-bold text-slate-400 uppercase">Administrador General</p>
+            <p class="text-sm font-extrabold text-disjoya-navy mt-1">pedro.noriega@gmail.com</p>
+            <p class="text-[10px] text-emerald-600 mt-0.5">Control Total & Parametrización</p>
+          </div>
+          <div class="bg-amber-50/50 p-4 rounded-xl border border-amber-200">
+            <p class="text-[11px] font-bold text-amber-700 uppercase">Jefe que Autoriza</p>
+            <p class="text-sm font-extrabold text-slate-900 mt-1">spramirez2024@gmail.com</p>
+            <p class="text-[10px] text-amber-800 mt-0.5">Aprobador Operativo Designado</p>
+          </div>
+          <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-200">
+            <p class="text-[11px] font-bold text-blue-700 uppercase">Trabajador que Solicita</p>
+            <p class="text-sm font-extrabold text-slate-900 mt-1">pnoriegawork@gmail.com</p>
+            <p class="text-[10px] text-blue-800 mt-0.5">Marcación QR & Solicitud de HE</p>
+          </div>
+        </div>
+
+        <!-- Tabla de Gestión de Personal y Asignación de Jefes -->
+        <div class="rounded-xl border border-slate-200 overflow-hidden">
+          <div class="p-3 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+            <span class="text-xs font-bold text-slate-700 uppercase">Personal de la Empresa y Asignación de Aprobador</span>
+            <span class="text-[11px] text-slate-500 font-medium">Sincronizado con Supabase</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-100 text-slate-600 uppercase text-[10px] font-bold">
+                <tr>
+                  <th class="p-3">Empleado</th>
+                  <th class="p-3">Correo Electrónico</th>
+                  <th class="p-3">Rol del Sistema</th>
+                  <th class="p-3">Jefe Inmediato que Autoriza</th>
+                  <th class="p-3 text-center">Acción</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 font-medium">
+                
+                <!-- Fila Trabajador: pnoriegawork@gmail.com -->
+                <tr class="hover:bg-slate-50">
+                  <td class="p-3">
+                    <p class="font-bold text-slate-900">Pedro Noriega</p>
+                    <p class="text-[10px] text-slate-400">CC 1020304050 • Técnico Autopartes</p>
+                  </td>
+                  <td class="p-3 font-mono text-slate-700 font-semibold">pnoriegawork@gmail.com</td>
+                  <td class="p-3">
+                    <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full">TRABAJADOR</span>
+                  </td>
+                  <td class="p-3">
+                    <select id="select-jefe-trabajador" class="text-xs p-2 rounded-lg border border-slate-300 bg-white font-semibold focus:ring-2 focus:ring-disjoya-navy outline-none">
+                      <option value="spramirez" selected>S.P. Ramírez (spramirez2024@gmail.com)</option>
+                      <option value="pedro_admin">Pedro Noriega - Admin (pedro.noriega@gmail.com)</option>
+                      <option value="ninguno">Sin asignar</option>
+                    </select>
+                  </td>
+                  <td class="p-3 text-center">
+                    <button onclick="guardarAsignacionJefe('select-jefe-trabajador')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow-sm flex items-center gap-1 mx-auto">
+                      <i class="fa-solid fa-floppy-disk"></i> Guardar
+                    </button>
+                  </td>
+                </tr>
+
+                <!-- Fila Jefe: spramirez2024@gmail.com -->
+                <tr class="hover:bg-slate-50">
+                  <td class="p-3">
+                    <p class="font-bold text-slate-900">S.P. Ramírez</p>
+                    <p class="text-[10px] text-slate-400">CC 52002002 • Jefe de Operaciones</p>
+                  </td>
+                  <td class="p-3 font-mono text-slate-700 font-semibold">spramirez2024@gmail.com</td>
+                  <td class="p-3">
+                    <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full">JEFE_INMEDIATO</span>
+                  </td>
+                  <td class="p-3">
+                    <span class="text-slate-600 font-medium">Pedro Noriega - Admin (pedro.noriega@gmail.com)</span>
+                  </td>
+                  <td class="p-3 text-center text-slate-400 text-[10px] font-semibold">
+                    Jerarquía Superior
+                  </td>
+                </tr>
+
+                <!-- Fila Admin: pedro.noriega@gmail.com -->
+                <tr class="hover:bg-slate-50 bg-red-50/20">
+                  <td class="p-3">
+                    <p class="font-bold text-slate-900">Pedro Noriega (Administrador)</p>
+                    <p class="text-[10px] text-slate-400">CC 79001001 • Director General</p>
+                  </td>
+                  <td class="p-3 font-mono text-slate-700 font-semibold">pedro.noriega@gmail.com</td>
+                  <td class="p-3">
+                    <span class="bg-disjoya-red text-white text-[10px] font-bold px-2 py-0.5 rounded-full">AUDITOR_SUPERADMIN</span>
+                  </td>
+                  <td class="p-3 text-slate-400 italic">
+                    Sin superior (Dirección y Confianza - Art. 162 CST)
+                  </td>
+                  <td class="p-3 text-center text-slate-400 text-[10px] font-semibold">
+                    SuperAdmin
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="alerta-admin-jefe" class="hidden p-3.5 rounded-xl text-xs font-semibold"></div>
+
+      </div>
+
+    </div>
+
   </main>
 
   <!-- FOOTER INSTITUCIONAL -->
@@ -760,11 +900,14 @@
   <script>
     // ESTADO GLOBAL DE LA APLICACIÓN
     let usuarioActual = {
-      id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      id: '33333333-4444-5555-6666-777777777777',
       rol: 'TRABAJADOR',
-      nombre: 'Pedro Noriega',
+      nombre: 'Pedro Noriega (Trabajador)',
+      email: 'pnoriegawork@gmail.com',
       documento: 'CC 1020304050',
-      deviceUuid: 'a8b4f1-9c3d-4e5f-b6a1-0192837465'
+      deviceUuid: 'a8b4f1-9c3d-4e5f-b6a1-0192837465',
+      jefeEmail: 'spramirez2024@gmail.com',
+      jefeNombre: 'S.P. Ramírez'
     };
 
     let sedePrincipal = {
@@ -829,12 +972,39 @@
       menu.classList.toggle('hidden');
     }
 
-    function cambiarPerfil(rol, nombre, doc) {
+    function cambiarPerfil(rol, nombre, doc, email) {
       usuarioActual.rol = rol;
       usuarioActual.nombre = nombre;
       usuarioActual.documento = doc;
+      usuarioActual.email = email || usuarioActual.email;
       actualizarInterfazUsuario();
       toggleMenuUsuario();
+    }
+
+    function guardarAsignacionJefe(selectId) {
+      const select = document.getElementById(selectId);
+      const val = select.value;
+      const texto = select.options[select.selectedIndex].text;
+      
+      const alertEl = document.getElementById('alerta-admin-jefe');
+      alertEl.classList.remove('hidden');
+      alertEl.className = 'p-4 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-900 border border-emerald-300 space-y-1';
+      alertEl.innerHTML = `
+        <div class="flex items-center gap-1.5 font-bold text-emerald-800">
+          <i class="fa-solid fa-circle-check text-emerald-600 text-sm"></i>
+          <span>Asignación de Jefatura Guardada con Éxito</span>
+        </div>
+        <p class="text-[11px] text-emerald-700">
+          Las solicitudes de horas extras radicadas por <strong>pnoriegawork@gmail.com</strong> ahora se enrutan de forma directa para aprobación de: <strong>${texto}</strong>.
+        </p>
+      `;
+
+      usuarioActual.jefeEmail = (val === 'spramirez') ? 'spramirez2024@gmail.com' : 'pedro.noriega@gmail.com';
+      usuarioActual.jefeNombre = (val === 'spramirez') ? 'S.P. Ramírez' : 'Pedro Noriega (Admin)';
+      
+      // Actualizar vista de jefe en la bandeja de horas extras
+      const apNombre = document.getElementById('aprobador-display-he');
+      if (apNombre) apNombre.innerText = usuarioActual.jefeNombre;
     }
 
     function actualizarInterfazUsuario() {

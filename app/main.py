@@ -44,6 +44,7 @@ from .models import (
 )
 from .notificador import Notificacion, despachar
 from .schemas import (
+    AsignarJefeIn,
     CentroCreadoOut,
     CentroIn,
     ConsentimientoIn,
@@ -346,6 +347,77 @@ def crear_empleado(body: EmpleadoIn, actor: Actor = Depends(requiere("NOMINA_RRH
               actor_rol=actor.rol, ip_origen=actor.ip, datos={"rol": e.rol, "cargo": e.cargo, "jefe": e.jefe_inmediato_id})
     db.commit()
     return e
+
+
+@app.get(f"{PREFIJO}/admin/empleados")
+def listar_empleados_admin(actor: Actor = Depends(requiere("NOMINA_RRHH", "AUDITOR_SUPERADMIN")), db: Session = Depends(get_db)):
+    emps = db.execute(select(Empleado).order_by(Empleado.nombres)).scalars().all()
+    resultado = []
+    for e in emps:
+        jefe = db.get(Empleado, e.jefe_inmediato_id) if e.jefe_inmediato_id else None
+        centro = db.get(CentroTrabajo, e.centro_trabajo_id) if e.centro_trabajo_id else None
+        resultado.append({
+            "id": str(e.id),
+            "tipo_documento": e.tipo_documento,
+            "numero_documento": e.numero_documento,
+            "nombres": e.nombres,
+            "apellidos": e.apellidos,
+            "nombre_completo": e.nombre_completo,
+            "email": e.email,
+            "rol": e.rol,
+            "cargo": e.cargo,
+            "jefe_inmediato_id": str(e.jefe_inmediato_id) if e.jefe_inmediato_id else None,
+            "jefe_inmediato_nombre": jefe.nombre_completo if jefe else "Sin asignar",
+            "jefe_inmediato_email": jefe.email if jefe else None,
+            "centro_trabajo_id": str(e.centro_trabajo_id) if e.centro_trabajo_id else None,
+            "centro_nombre": centro.nombre if centro else "Sin asignar",
+            "activo": e.activo
+        })
+    return resultado
+
+
+@app.get(f"{PREFIJO}/admin/jefes")
+def listar_jefes_disponibles(actor: Actor = Depends(requiere("NOMINA_RRHH", "AUDITOR_SUPERADMIN")), db: Session = Depends(get_db)):
+    jefes = db.execute(select(Empleado).where(Empleado.rol.in_(["JEFE_INMEDIATO", "AUDITOR_SUPERADMIN"]), Empleado.activo == True).order_by(Empleado.nombres)).scalars().all()
+    return [{"id": str(j.id), "nombre_completo": j.nombre_completo, "email": j.email, "cargo": j.cargo, "rol": j.rol} for j in jefes]
+
+
+@app.patch(f"{PREFIJO}/admin/empleados/{{empleado_id}}/jefe")
+def asignar_jefe_inmediato(
+    empleado_id: uuid.UUID,
+    body: AsignarJefeIn,
+    actor: Actor = Depends(requiere("NOMINA_RRHH", "AUDITOR_SUPERADMIN")),
+    db: Session = Depends(get_db),
+    reloj: RelojLegal = Depends(get_reloj)
+):
+    emp = db.get(Empleado, empleado_id)
+    if emp is None:
+        raise HTTPException(404, "Empleado no encontrado")
+    if body.jefe_inmediato_id:
+        if body.jefe_inmediato_id == empleado_id:
+            raise HTTPException(422, "Un empleado no puede ser su propio jefe inmediato")
+        jefe = db.get(Empleado, body.jefe_inmediato_id)
+        if jefe is None or not jefe.activo:
+            raise HTTPException(422, "Jefe inmediato no encontrado o inactivo")
+        if jefe.rol not in ("JEFE_INMEDIATO", "AUDITOR_SUPERADMIN"):
+            raise HTTPException(422, "El usuario seleccionado no tiene rol de jefatura o administración")
+    
+    jefe_anterior = emp.jefe_inmediato_id
+    emp.jefe_inmediato_id = body.jefe_inmediato_id
+    
+    registrar(db, ocurrido_en=reloj.ahora().utc, accion="ASIGNACION_JEFE_ACTUALIZADA", entidad="empleados", entidad_id=emp.id,
+              actor_id=actor.id, actor_rol=actor.rol, ip_origen=actor.ip,
+              datos={"jefe_anterior": str(jefe_anterior) if jefe_anterior else None,
+                     "nuevo_jefe": str(body.jefe_inmediato_id) if body.jefe_inmediato_id else None})
+    db.commit()
+    jefe_nuevo = db.get(Empleado, body.jefe_inmediato_id) if body.jefe_inmediato_id else None
+    return {
+        "empleado_id": str(emp.id),
+        "empleado_nombre": emp.nombre_completo,
+        "jefe_inmediato_id": str(body.jefe_inmediato_id) if body.jefe_inmediato_id else None,
+        "jefe_inmediato_nombre": jefe_nuevo.nombre_completo if jefe_nuevo else "Sin asignar",
+        "mensaje": "Jefe inmediato asignado exitosamente"
+    }
 
 
 @app.post(f"{PREFIJO}/turnos", status_code=201)

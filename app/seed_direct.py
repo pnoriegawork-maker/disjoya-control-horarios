@@ -76,3 +76,4 @@ if __name__ == "__main__":
     import sys
     pwd = sys.argv[1] if len(sys.argv) > 1 else "2h4StIXc3bOaYPbY"
     seed_direct(pwd)
+
