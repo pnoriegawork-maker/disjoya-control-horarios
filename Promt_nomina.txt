@@ -1,0 +1,160 @@
+<master_prompt>
+<role>
+Actúas como un Arquitecto de Sistemas Agénticos Autónomos de Grado Enterprise, Ingeniero de Software Full-Stack Senior (Python 3.12, FastAPI, PostgreSQL/SQLAlchemy, Celery/Redis, Jinja2/ReportLab para PDFs, PWA/Tailwind), Abogado Especialista en Derecho Laboral y Seguridad Social en Colombia y Auditor de Ciberseguridad/Habeas Data (Ley 1581 de 2012). Dominas al 100% el Código Sustantivo del Trabajo (CST), la Ley 2101 de 2021 (jornada ordinaria reducida a 44 horas semanales), la Ley 50 de 1990 (Art. 22 sobre topes de trabajo suplementario), el régimen de incapacidades médicas (EPS origen común vs. ARL riesgos laborales), vacaciones (Art. 186 CST), el tratamiento salarial de comisiones para personal comercial (Art. 127 CST) y la metodología de control en lazo cerrado (Loop Engineering - Protocolo MAPE-K).
+</role>
+
+<context>
+Una empresa en Colombia (sector autopartes y servicios) requiere implementar un SISTEMA AGÉNTICO AUTÓNOMO 100% FUNCIONAL Y OPERATIVO EN PRODUCCIÓN (cero simulaciones, cero mocks de juguete, cero pseudocódigo incompleto) para la gestión integral de asistencia móvil por código QR, control de novedades (vacaciones e incapacidades), alertas automáticas de inasistencia, workflow de aprobación de horas extras con doble contabilidad y arrastre legal, y la liquidación mensual automatizada de nómina conforme al archivo maestro "NOMINA DE AUTOPARTES para sr pedro" con emisión y envío individual de desprendibles de pago en PDF.
+
+CONFIGURACIÓN DE ENTORNOS Y PARÁMETROS CRÍTICOS:
+1. Correo Institucional del Jefe Inmediato / Aprobador Oficial:
+   - Jefe Inmediato Responsable: tminero.sst@gmail.com
+   - REGLA DE DEPURACIÓN: Se debe ELIMINAR Y DESACTIVAR DEFINITIVAMENTE cualquier referencia previa al correo spramirez2024@gmail.com.
+
+2. Módulo de Gestión de Novedades (Vacaciones e Incapacidades):
+   - El sistema debe permitir registrar y parametrizar los días de:
+     a) Vacaciones remuneradas (15 días hábiles por año de servicio, base salarial sin auxilio de transporte).
+     b) Incapacidades médicas por EPS (Enfermedad general / origen común: Días 1 y 2 asumidos por la empresa al 66.67% o 100% según política sin bajar del SMLMV; día 3 en adelante a cargo de la EPS).
+     c) Incapacidades médicas por ARL (Accidente de trabajo o enfermedad laboral: 100% del IBC asumido por la ARL desde el día 1 siguiente al evento).
+   - Bloqueo inteligente: Durante los días activos de vacaciones o incapacidad, el sistema inhabilita la exigencia de marcación y las alertas de inasistencia para ese trabajador.
+
+3. Alerta Automática de Inasistencia / Marcación Omitida (Ventana de Gracia de 30 Minutos):
+   - Parámetro de Control: Pasados 30 minutos del horario oficial programado de ENTRADA o SALIDA sin que el trabajador haya registrado su escaneo QR (y no cuente con novedad de vacaciones/incapacidad activa):
+     * El sistema dispara inmediatamente una alerta crítica por correo electrónico al TRABAJADOR informándole la omisión.
+     * El sistema despacha simultáneamente la notificación de alerta al JEFE INMEDIATO (tminero.sst@gmail.com) para su conocimiento y control disciplinario/operativo.
+
+4. Política de Trabajo Suplementario (Horas Extras) y Doble Contabilización Inteligente:
+   - HORA EXTRA PREAUTORIZADA POR DEFECTO:
+     * Todos los trabajadores de la empresa tienen autorizada por política interna UNA (1) HORA EXTRA DIARIA de lunes a viernes. Esta hora extra base SIEMPRE se contabiliza, liquida y paga.
+   - HORAS EXTRAS ADICIONALES (Solicitud y Aprobación):
+     * Cualquier hora extra que supere esa primera hora preautorizada DEBE ser solicitada por el trabajador a través de la aplicación móvil y aprobada expresamente por el jefe inmediato (tminero.sst@gmail.com).
+   - SISTEMA DE DOBLE CONTABILIZACIÓN Y LIBRO MAYOR DE ARRASTRE LEGAL (CARRY-OVER LEDGER):
+     * Marco Legal Colombiano: El Art. 22 de la Ley 50 de 1990 prohíbe laborar más de 2 horas extras diarias y 12 semanales.
+     * Mecanismo Inteligente de Doble Cuenta:
+       - Cuenta 1 (Liquidación Mensual de Nómina Legal): Liquida y paga en el mes corriente las horas extras devengadas respetando los límites legales de pago periódico.
+       - Cuenta 2 (Libro Mayor de Horas Devengadas Reales / Banco de Arrastre): Si por caso fortuito, urgencia operativa o fuerza mayor el trabajador acumuló horas extras adicionales que sobrepasen el cupo liquidable del período mensual, NUNCA se pierden ni se anulan. El sistema las traslada automáticamente como saldo a favor al mes inmediatamente siguiente ("arrastrando mes a mes"), liquidándolas y pagándolas progresivamente hasta dejar en ceros ambas cuentas.
+
+5. Módulo Exclusivo de Comisiones para Vendedores (Personal Comercial):
+   - Sección dedicada exclusivamente a los trabajadores con cargo de "Vendedor / Asesor Comercial".
+   - Carga manual o masiva del valor mensual en pesos ($ COP) devengado por comisiones sobre ventas.
+   - Rigor Legal Laboral: Las comisiones constituyen SALARIO en los términos del Art. 127 del CST; por tanto, el motor de cálculo las suma directamente al salario básico para conformar la base de cotización a Seguridad Social (Salud, Pensión, ARL), Parafiscales (SENA, ICBF, Cajas de Compensación) y la base de liquidación de Prestaciones Sociales (Cesantías, Intereses sobre Cesantías y Prima de Servicios).
+
+6. Motor Financiero de Liquidación de Nómina ("NOMINA DE AUTOPARTES para sr pedro"):
+   - Procesamiento de la lista de trabajadores con su cargo, salario básico mensual pactado y días efectivamente laborados.
+   - Aplicación estricta de la estructura de liquidación contenida en el archivo maestro de Excel "NOMINA DE AUTOPARTES para sr pedro":
+     * Discriminación de recargos según el CST: HOD (Ordinaria Diurna), HED (+25%), RN (+35%), HEN (+75%), Dominical/Festivo Ordinario (+75%), HEDDF (+100%), HENDF (+150%).
+     * Auxilio de transporte legal (si el devengado es <= 2 SMLMV y no está en vacaciones/incapacidad).
+     * Deducciones obligatorias de ley del trabajador: Salud (4%) y Pensión (4%).
+     * Provisiones prestacionales y aportes patronales según la plantilla institucional.
+
+7. Generación y Despacho Individual de Desprendibles de Nómina en PDF:
+   - Para CADA trabajador se genera un archivo PDF independiente, profesional y firmado digitalmente que contiene:
+     * Razón social, NIT y datos patronales.
+     * Datos del trabajador: Nombre completo, Cédula de Ciudadanía, Cargo, Salario Básico, Días laborados, Días de Incapacidad/Vacaciones.
+     * Detalle minucioso de Devengados (Básico, Auxilio Transporte, HED, HEN, Recargos, Comisiones de Venta, Total Devengado).
+     * Detalle de Deducciones (Salud, Pensión, Libranzas, Otras deducciones, Total Deducido).
+     * Neto a Pagar en letras y números.
+   - El sistema almacena los PDFs en una carpeta estructurada y ejecuta el envío automático por correo electrónico a la dirección de cada empleado, con copia de respaldo al archivo central de auditoría.
+</context>
+
+<task>
+Aplica el protocolo de Ingeniería de Bucles (Loop Engineering - Protocolo MAPE-K) para diseñar e implementar la arquitectura técnica completa, el esquema DDL de base de datos relacional (PostgreSQL), la API REST en Python (FastAPI) con tareas en segundo plano para las alertas de inasistencia (30 minutos), el motor de doble contabilización de horas extras con arrastre de saldos, el módulo de comisiones para vendedores, la lógica de liquidación según la plantilla "NOMINA DE AUTOPARTES para sr pedro" y el script generador de desprendibles de pago individuales en PDF con envío por correo.
+</task>
+
+<loop_engineering_execution_protocol>
+El diseño y la operación del sistema agéntico deben autogobernarse bajo el lazo cerrado de control continuo en cinco fases (MAPE-K):
+
+1. MONITOR (M) - Ingesta Continua, Control Asistencial y Detección de Novedades:
+   - Ingesta de marcaciones por escaneo QR móvil (Timestamp "America/Bogota" UTC-5).
+   - Tarea en Segundo Plano (Cron/Background Scheduler): Monitoreo de horarios de entrada y salida programados.
+     * Regla de Disparo: Si Hora_Actual > (Hora_Programada + 30 min) y Status_Marcacion == FALSE y Trabajador_en_Novedad == FALSE:
+       -> Disparar inmediatamente Alerta de Inasistencia / Marcación Omitida al empleado y al correo tminero.sst@gmail.com.
+   - Verificación de novedades activas: Consulta previa a la tabla de incapacidades (EPS/ARL) y vacaciones para exonerar de marcación.
+
+2. ANALYZE (A) - Clasificación Horaria, Doble Contabilización y Validación Legal:
+   - Cómputo del tiempo laborado en el día y en el mes.
+   - Partición de Horas Extras:
+     * Separación de la 1ª hora extra diaria preautorizada de lunes a viernes (ingreso directo al devengado mensual).
+     * Detección de horas adicionales: Validación de que cuenten con registro de solicitud del trabajador y aprobación del jefe (tminero.sst@gmail.com).
+   - Ejecución del Ledger de Doble Contabilización:
+     * Evaluación de límites legales (CST / Ley 50/1990: 2h/día, 12h/sem).
+     * Asignación a Cuenta Nómina Período Corriente (lo liquidable en el mes).
+     * Asignación a Cuenta Arrastre Legal (saldo de horas por pagar en meses futuros).
+   - Ingesta de comisiones para vendedores e integración a la base salarial integral.
+
+3. PLAN (P) - Orquestación de Liquidación de Nómina y Generación de Entregables:
+   - Cruce de datos con la estructura del archivo "NOMINA DE AUTOPARTES para sr pedro".
+   - Aplicación de fórmulas de nómina colombiana:
+     * Salario Base Proporcional = (Salario_Basico / 30) * Días_Laborados.
+     * Valor Hora Ordinaria = Salario_Basico / 220 (o factor según jornada 44h Ley 2101).
+     * HED = Horas * Valor_Hora * 1.25.
+     * HEN = Horas * Valor_Hora * 1.75.
+     * Recargo Nocturno = Horas * Valor_Hora * 0.35.
+     * Recargo Dominical/Festivo = Horas * Valor_Hora * 0.75.
+     * Base Prestacional y de Seguridad Social = Salario Base + Horas Extras + Recargos + Comisiones (Vendedores).
+     * Deducción Salud = (Base_Cotizacion - Auxilio_Transporte) * 4%.
+     * Deducción Pensión = (Base_Cotizacion - Auxilio_Transporte) * 4%.
+     * Neto a Pagar = Total Devengado - Total Deducido.
+   - Planificación de generación de PDFs y cola de despacho de correos electrónicos.
+
+4. EXECUTE (E) - Código Fuente Monolítico 100% Funcional (Zero Placeholders):
+   - Producir el código fuente completo, ejecutable y robusto en Python:
+     1. Esquema DDL en PostgreSQL (Tablas: empleados, novedades_ausentismo, turnos, marcaciones_qr, horas_extras_ledger, comisiones_vendedores, liquidacion_nomina).
+     2. Módulo de Alertas Automáticas (Email service con alerta a tminero.sst@gmail.com pasados los 30 min).
+     3. Motor de Cálculo de Nómina y Arrastre de Horas Extras en Python (Pandas/SQLAlchemy).
+     4. Generador de Desprendibles de Nómina Individuales en PDF con ReportLab/FPDF2.
+     5. Script de Despacho de Correos con adjuntos PDF por trabajador.
+
+5. KNOWLEDGE (K) - Auditoría de Cierre de Cuentas, Trazabilidad y Certificación de Cumplimiento:
+   - Emisión del Reporte de Cuadre de Cuentas: Estado del libro mayor de horas extras (horas devengadas, horas pagadas, horas arrastradas para el mes siguiente).
+   - Bitácora de trazabilidad inmutable y constancia de entrega de desprendibles para archivo patronal de la empresa.
+</loop_engineering_execution_protocol>
+
+<constraints>
+- CERO SIMULACIONES: El código debe ser 100% ejecutable, libre de placeholders genéricos ("// código aquí") o funciones simuladas.
+- CORREO DEL JEFE INMEDIATO: Configurado estrictamente en tminero.sst@gmail.com. Prohibido usar spramirez2024@gmail.com.
+- REGLA DE 30 MINUTOS: El sistema de alerta debe comprobar la tolerancia de 30 minutos y despachar correo ante omisiones.
+- DOBLE CONTABILIZACIÓN OBLIGATORIA: Implementar explícitamente el modelo de datos y la lógica para acumular y arrastrar horas extras que excedan topes legales mes a mes.
+- COMISIONES DE VENDEDORES: Sección manual exclusiva para vendedores que impacta salario y prestaciones.
+- DESPRENDIBLES INDIVIDUALES EN PDF: Generar un archivo PDF independiente por cada trabajador con todas las especificaciones de ley colombiana.
+</constraints>
+
+<output_format>
+El entregable debe estructurarse en Markdown formal:
+
+# 🏛️ SISTEMA AGÉNTICO INTEGRAL DE CONTROL HORARIO, GESTIÓN DE NOVEDADES Y NÓMINA LEGAL EN COLOMBIA (PRODUCCIÓN OPERATIVA)
+
+**Configuración Institucional:**
+- **Jefe Inmediato Oficial:** `tminero.sst@gmail.com` (Cuenta anterior eliminada)
+- **Marco Normativo:** CST, Ley 2101 de 2021 (44h), Ley 50 de 1990, Ley 1581 de 2012
+- **Archivo Base de Nómina:** `NOMINA DE AUTOPARTES para sr pedro`
+- **Metodología:** Lazo Cerrado Autonómico (Protocolo MAPE-K)
+
+---
+
+## 📐 1. ARQUITECTURA TÉCNICA Y DIAGRAMA DE FLUJO AGÉNTICO
+- Flujo de marcación QR, geocerca, validación de novedades (vacaciones/incapacidades EPS/ARL).
+- Mecanismo de monitoreo de 30 minutos con disparo de alertas a trabajador y a `tminero.sst@gmail.com`.
+- Lógica de la doble contabilización y ledger de arrastre de horas extras no pagadas en el mes.
+
+---
+
+## 🗄️ 2. ESQUEMA DDL DE BASE DE DATOS (POSTGRESQL / SQLALCHEMY)
+- Tablas completas con llaves foráneas, tipos de datos, restricciones e índices.
+
+---
+
+## 💻 3. MOTOR DE LIQUIDACIÓN DE NÓMINA Y DOBLE CONTABILIZACIÓN EN PYTHON
+- Código completo en Python que procesa la nómina, aplica la plantilla de Autopartes, integra comisiones de vendedores y gestiona el banco de horas acumuladas.
+
+---
+
+## ⏰ 4. SERVICIO DE ALERTAS DE INASISTENCIA (MONITOREO CADA 30 MINUTOS)
+- Código de la tarea programada que verifica marcaciones no realizadas y despacha correos automáticos al empleado y a `tminero.sst@gmail.com`.
+
+---
+
+## 📄 5. GENERADOR DE DESPRENDIBLES INDIVIDUALES DE NÓMINA EN PDF Y DESPACHO POR CORREO
+- Script completo con ReportLab/FPDF2 que construye los recibos de pago individuales en formato PDF y los envía a cada trabajador.
+</output_format>
+</master_prompt>

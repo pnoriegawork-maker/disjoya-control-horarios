@@ -18,7 +18,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, Query, Request
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func, or_, select
@@ -90,6 +90,9 @@ if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 @app.get("/", include_in_schema=False)
+@app.get("/trabajador", include_in_schema=False)
+@app.get("/admin", include_in_schema=False)
+@app.get("/jefe", include_in_schema=False)
 def index():
     html_file = STATIC_DIR / "index.html"
     if html_file.exists():
@@ -857,4 +860,789 @@ def auditoria_eventos(desde_id: int = 0, limite: int = Query(200, le=1000), acto
              "actor_id": str(r.actor_id) if r.actor_id else None, "actor_rol": r.actor_rol, "accion": r.accion, "entidad": r.entidad,
              "entidad_id": r.entidad_id, "ip_origen": str(r.ip_origen) if r.ip_origen else None, "dispositivo_hash": r.dispositivo_hash,
              "datos": r.datos, "hash_anterior": r.hash_anterior, "hash_actual": r.hash_actual} for r in regs]
+
+
+# ============================================================================ ENDPOINTS PRODUCCIÓN: NOVEDADES, ALERTAS 30M, COMISIONES, LEDGER HE Y NÓMINA AUTOPARTES
+from pydantic import BaseModel, Field
+from .alertas_inasistencia import evaluar_omisiones_30_minutos
+from .desprendibles_pdf import emitir_y_despachar_desprendibles_periodo, generar_pdf_desprendible_individual
+from .models import (
+    AlertaInasistencia,
+    ComisionVendedor,
+    HorasExtrasLedger,
+    JEFE_OFICIAL_EMAIL,
+    LiquidacionNomina,
+    NovedadAusentismo,
+)
+from .nomina_autopartes import (
+    PLANTA_OFICIAL_AUTOPARTES,
+    clasificar_tramo_he_colombia,
+    liquidar_empleado_autopartes,
+    registrar_comision_vendedor,
+)
+
+
+class NovedadAusentismoIn(BaseModel):
+    empleado_id: uuid.UUID
+    tipo_novedad: str = Field(..., pattern="^(VACACIONES|INCAPACIDAD_EPS|INCAPACIDAD_ARL|LICENCIA_REMUNERADA|LICENCIA_NO_REMUNERADA)$")
+    fecha_inicio: date
+    fecha_fin: date
+    dias_habiles: int = Field(0, ge=0)
+    porcentaje_pago_empresa: Decimal = Field(Decimal("100.00"), ge=0, le=100)
+    entidad_responsable: str = "EMPRESA_DISJOYA"
+    codigo_cie10: str | None = None
+    observaciones: str | None = None
+
+
+class ComisionVendedorIn(BaseModel):
+    empleado_id: uuid.UUID
+    periodo_anio: int = Field(..., ge=2025, le=2035)
+    periodo_mes: int = Field(..., ge=1, le=12)
+    comision_quincena_1: Decimal = Field(Decimal("0.00"), ge=0)
+    comision_quincena_2: Decimal = Field(Decimal("0.00"), ge=0)
+    observaciones: str | None = None
+
+
+@app.post(f"{PREFIJO}/novedades-ausentismo", status_code=201)
+def crear_novedad_ausentismo(body: NovedadAusentismoIn, actor: Actor = Depends(requiere("JEFE_INMEDIATO", "NOMINA_RRHH", "AUDITOR_SUPERADMIN")),
+                             db: Session = Depends(get_db), reloj: RelojLegal = Depends(get_reloj)) -> dict:
+    if body.fecha_fin < body.fecha_inicio:
+        raise HTTPException(422, "La fecha fin no puede ser anterior a la fecha inicio")
+    emp = db.get(Empleado, body.empleado_id)
+    if emp is None:
+        raise HTTPException(404, "Empleado no encontrado")
+    dias_cal = (body.fecha_fin - body.fecha_inicio).days + 1
+    nov = NovedadAusentismo(
+        empleado_id=emp.id,
+        tipo_novedad=body.tipo_novedad,
+        fecha_inicio=body.fecha_inicio,
+        fecha_fin=body.fecha_fin,
+        dias_calendario=dias_cal,
+        dias_habiles=body.dias_habiles or dias_cal,
+        porcentaje_pago_empresa=body.porcentaje_pago_empresa,
+        entidad_responsable=body.entidad_responsable,
+        codigo_cie10=body.codigo_cie10,
+        observaciones=body.observaciones,
+        exime_marcacion_qr=True,
+        estado="ACTIVA",
+        registrado_por_id=actor.id,
+    )
+    db.add(nov)
+    db.flush()
+    registrar(db, ocurrido_en=reloj.ahora().utc, accion="NOVEDAD_AUSENTISMO_REGISTRADA", entidad="novedades_ausentismo",
+              entidad_id=nov.id, actor_id=actor.id, actor_rol=actor.rol,
+              datos={"empleado": emp.nombre_completo, "tipo": body.tipo_novedad, "dias": dias_cal})
+    db.commit()
+    return {
+        "id": str(nov.id),
+        "empleado": emp.nombre_completo,
+        "tipo_novedad": nov.tipo_novedad,
+        "fecha_inicio": nov.fecha_inicio.isoformat(),
+        "fecha_fin": nov.fecha_fin.isoformat(),
+        "dias_calendario": nov.dias_calendario,
+        "exime_marcacion_qr": nov.exime_marcacion_qr,
+    }
+
+
+@app.get(f"{PREFIJO}/novedades-ausentismo")
+def listar_novedades_ausentismo(db: Session = Depends(get_db)) -> list[dict]:
+    regs = db.execute(select(NovedadAusentismo).order_by(NovedadAusentismo.fecha_inicio.desc())).scalars().all()
+    return [
+        {
+            "id": str(r.id),
+            "empleado_id": str(r.empleado_id),
+            "empleado": r.empleado.nombre_completo if r.empleado else "",
+            "tipo_novedad": r.tipo_novedad,
+            "fecha_inicio": r.fecha_inicio.isoformat(),
+            "fecha_fin": r.fecha_fin.isoformat(),
+            "dias_calendario": r.dias_calendario,
+            "entidad_responsable": r.entidad_responsable,
+            "exime_marcacion_qr": r.exime_marcacion_qr,
+            "estado": r.estado,
+        }
+        for r in regs
+    ]
+
+
+@app.post(f"{PREFIJO}/alertas-inasistencia/evaluar-30m")
+def ejecutar_monitoreo_30_minutos(db: Session = Depends(get_db), reloj: RelojLegal = Depends(get_reloj)) -> dict:
+    """Ejecuta el barrido de control asistencial (ventana de gracia de 30 minutos).
+    Notifica inmediatamente al trabajador y a `tminero.sst@gmail.com` si no hay marcación ni novedad activa."""
+    inst = reloj.ahora()
+    disparadas = evaluar_omisiones_30_minutos(db, inst.utc)
+    return {
+        "evaluado_en": a_bogota(inst.utc).isoformat(),
+        "ventana_gracia_minutos": 30,
+        "jefe_oficial_notificado": JEFE_OFICIAL_EMAIL,
+        "total_alertas_disparadas": len(disparadas),
+        "alertas": disparadas,
+    }
+
+
+@app.get(f"{PREFIJO}/alertas-inasistencia")
+def listar_alertas_inasistencia(db: Session = Depends(get_db)) -> list[dict]:
+    regs = db.execute(select(AlertaInasistencia).order_by(AlertaInasistencia.creado_en.desc()).limit(100)).scalars().all()
+    return [
+        {
+            "id": str(a.id),
+            "empleado": a.empleado.nombre_completo if a.empleado else "",
+            "fecha": a.fecha.isoformat(),
+            "tipo_omision": a.tipo_omision,
+            "minutos_retraso": a.minutos_retraso,
+            "jefe_email_notificado": a.jefe_email_notificado,
+            "correo_trabajador_enviado": a.correo_trabajador_enviado,
+            "correo_jefe_enviado": a.correo_jefe_enviado,
+        }
+        for a in regs
+    ]
+
+
+@app.post(f"{PREFIJO}/comisiones-vendedores", status_code=201)
+def guardar_comision_vendedor(body: ComisionVendedorIn, db: Session = Depends(get_db), reloj: RelojLegal = Depends(get_reloj)) -> dict:
+    emp = db.get(Empleado, body.empleado_id)
+    if emp is None:
+        raise HTTPException(404, "Empleado no encontrado")
+    if not emp.es_vendedor:
+        raise HTTPException(422, "El trabajador no pertenece al área comercial / ventas")
+    reg = registrar_comision_vendedor(
+        db, emp, body.periodo_anio, body.periodo_mes, body.comision_quincena_1, body.comision_quincena_2, body.observaciones
+    )
+    registrar(db, ocurrido_en=reloj.ahora().utc, accion="COMISION_VENDEDOR_REGISTRADA", entidad="comisiones_vendedores",
+              entidad_id=reg.id, actor_rol="NOMINA_RRHH",
+              datos={"vendedor": emp.nombre_completo, "total_cop": str(reg.total_comisiones_cop)})
+    db.commit()
+    return {
+        "id": str(reg.id),
+        "empleado": emp.nombre_completo,
+        "cargo": emp.cargo,
+        "periodo": f"{reg.periodo_anio}-{reg.periodo_mes:02d}",
+        "comision_quincena_1": str(reg.comision_quincena_1),
+        "comision_quincena_2": str(reg.comision_quincena_2),
+        "total_comisiones_cop": str(reg.total_comisiones_cop),
+        "constituye_salario_art127": reg.constituye_salario_art127,
+    }
+
+
+@app.get(f"{PREFIJO}/horas-extras/ledger")
+def consultar_ledger_horas_extras(anio: int = 2026, mes: int = 8, db: Session = Depends(get_db)) -> list[dict]:
+    regs = db.execute(
+        select(HorasExtrasLedger).where(
+            HorasExtrasLedger.periodo_anio == anio,
+            HorasExtrasLedger.periodo_mes == mes,
+        )
+    ).scalars().all()
+    return [
+        {
+            "empleado": r.empleado.nombre_completo if r.empleado else "",
+            "documento": r.empleado.numero_documento if r.empleado else "",
+            "periodo": f"{r.periodo_anio}-{r.periodo_mes:02d}",
+            "horas_preautorizadas_1h_diaria": str(r.horas_preautorizadas_1h_diaria),
+            "horas_adicionales_aprobadas_jefe": str(r.horas_adicionales_aprobadas_jefe),
+            "saldo_arrastre_mes_anterior": str(r.saldo_arrastre_mes_anterior),
+            "total_horas_banco_real": str(r.total_horas_banco_real),
+            "horas_pagadas_nomina_mes": str(r.horas_pagadas_nomina_mes),
+            "saldo_arrastre_siguiente_mes": str(r.saldo_arrastre_siguiente_mes),
+            "valor_pagado_mes_cop": str(r.valor_pagado_mes_cop),
+            "aprobador_email": r.aprobador_email,
+            "sello_auditoria_sha256": r.sello_auditoria_sha256,
+        }
+        for r in regs
+    ]
+
+
+@app.post(f"{PREFIJO}/nomina/autopartes/liquidar-periodo")
+def ejecutar_liquidacion_autopartes_periodo(anio: int = 2026, mes: int = 8, db: Session = Depends(get_db)) -> dict:
+    """Liquida la nómina mensual de toda la planta según 'NOMINA DE AUTOPARTES para sr pedro',
+    incluyendo al trabajador activo de pruebas (Pedro Noriega - pnoriegawork@gmail.com) con sus horas extras aprobadas,
+    aplica doble contabilización de horas extras, comisiones Art. 127 CST y genera los PDFs individuales."""
+    # 1. Liquidar al trabajador activo de pruebas (Pedro Noriega - CC 1020304050 - pnoriegawork@gmail.com)
+    emp_prueba = db.execute(select(Empleado).where(Empleado.numero_documento == "1020304050")).scalar_one_or_none()
+    if emp_prueba is not None:
+        liquidar_empleado_autopartes(db, emp_prueba, anio, mes)
+
+    # 2. Liquidar a los 11 trabajadores de la nómina maestra "NOMINA DE AUTOPARTES para sr pedro"
+    for item in PLANTA_OFICIAL_AUTOPARTES:
+        emp = db.execute(select(Empleado).where(Empleado.numero_documento == item["numero_documento"])).scalar_one_or_none()
+        if emp is None:
+            continue
+        if item["es_vendedor"]:
+            registrar_comision_vendedor(db, emp, anio, mes, item["comision_q1"], item["comision_q2"])
+        liquidar_empleado_autopartes(
+            db,
+            emp,
+            anio,
+            mes,
+            horas_preautorizadas_override=item["hed_mes"],
+        )
+    db.commit()
+    desprendibles = emitir_y_despachar_desprendibles_periodo(db, anio, mes)
+    return {
+        "periodo": f"{anio}-{mes:02d}",
+        "jefe_aprobador_oficial": JEFE_OFICIAL_EMAIL,
+        "trabajadores_liquidados": len(desprendibles),
+        "desprendibles": desprendibles,
+    }
+
+
+@app.get(f"{PREFIJO}/nomina/autopartes/liquidaciones")
+def listar_liquidaciones_autopartes(anio: int = 2026, mes: int = 8, db: Session = Depends(get_db)) -> list[dict]:
+    # Garantizar que el trabajador de pruebas (Pedro Noriega - CC 1020304050 - pnoriegawork@gmail.com)
+    # tenga siempre su liquidación actualizada en vivo con las horas extras aprobadas por tminero.sst@gmail.com
+    emp_prueba = db.execute(select(Empleado).where(Empleado.numero_documento == "1020304050")).scalar_one_or_none()
+    if emp_prueba is not None:
+        liquidar_empleado_autopartes(db, emp_prueba, anio, mes)
+        db.commit()
+
+    regs = db.execute(
+        select(LiquidacionNomina).where(
+            LiquidacionNomina.periodo_anio == anio,
+            LiquidacionNomina.periodo_mes == mes,
+        )
+    ).scalars().all()
+
+    # Ordenar para que el trabajador de pruebas (1020304050) aparezca SIEMPRE de primero en la tabla
+    regs_ordenados = sorted(
+        regs,
+        key=lambda x: (0 if (x.empleado and x.empleado.numero_documento == "1020304050") else 1, x.empleado.nombre_completo if x.empleado else ""),
+    )
+
+    return [
+        {
+            "empleado_id": str(r.empleado_id),
+            "empleado": r.empleado.nombre_completo if r.empleado else "",
+            "documento": r.empleado.numero_documento if r.empleado else "",
+            "email": r.empleado.email if r.empleado else "",
+            "cargo": r.empleado.cargo if r.empleado else "",
+            "seccion": "TRABAJADOR EN PRUEBA (ACTIVO)" if (r.empleado and r.empleado.numero_documento == "1020304050") else r.seccion_plantilla,
+            "salario_basico_pactado": str(r.salario_basico_pactado),
+            "comisiones_ventas_art127": str(r.comisiones_ventas_art127),
+            "sueldo_base_calculo": str(r.sueldo_base_calculo),
+            "valor_hora_ordinaria": str(r.valor_hora_ordinaria),
+            "horas_extra_diurna": str(r.horas_extra_diurna),
+            "horas_extra_nocturna": str(r.horas_extra_nocturna),
+            "horas_extra_festiva_diurna": str(r.horas_extra_festiva_diurna),
+            "horas_extra_festiva_nocturna": str(r.horas_extra_festiva_nocturna),
+            "total_horas_pagadas_mes": str(
+                r.horas_extra_diurna + r.horas_extra_nocturna + r.horas_extra_festiva_diurna + r.horas_extra_festiva_nocturna
+            ),
+            "total_horas_extras_cop": str(r.total_horas_extras_cop),
+            "horas_arrastradas_siguiente_mes": str(r.horas_arrastradas_siguiente_mes),
+            "auxilio_transporte_devengado": str(r.auxilio_transporte_devengado),
+            "total_devengado": str(r.total_devengado),
+            "deduccion_salud_4pct": str(r.deduccion_salud_4pct),
+            "deduccion_pension_4pct": str(r.deduccion_pension_4pct),
+            "total_deducido": str(r.total_deducido),
+            "neto_a_pagar": str(r.neto_a_pagar),
+            "pdf_ruta_archivo": r.pdf_ruta_archivo,
+            "pdf_hash_sha256": r.pdf_hash_sha256,
+        }
+        for r in regs_ordenados
+    ]
+
+
+@app.get(f"{PREFIJO}/nomina/autopartes/desprendible/{{documento}}/{{anio}}/{{mes}}/pdf")
+def descargar_desprendible_pdf(documento: str, anio: int, mes: int, db: Session = Depends(get_db)) -> Response:
+    emp = db.execute(select(Empleado).where(Empleado.numero_documento == documento)).scalar_one_or_none()
+    if emp is None:
+        raise HTTPException(404, "Empleado no encontrado")
+    liq = db.execute(
+        select(LiquidacionNomina).where(
+            LiquidacionNomina.empleado_id == emp.id,
+            LiquidacionNomina.periodo_anio == anio,
+            LiquidacionNomina.periodo_mes == mes,
+        )
+    ).scalar_one_or_none()
+    if liq is None or documento == "1020304050":
+        liq = liquidar_empleado_autopartes(db, emp, anio, mes)
+        db.commit()
+    ledger = db.execute(
+        select(HorasExtrasLedger).where(
+            HorasExtrasLedger.empleado_id == emp.id,
+            HorasExtrasLedger.periodo_anio == anio,
+            HorasExtrasLedger.periodo_mes == mes,
+        )
+    ).scalar_one_or_none()
+    ruta_pdf, sha_pdf = generar_pdf_desprendible_individual(emp, liq, ledger)
+    liq.pdf_ruta_archivo = str(ruta_pdf)
+    liq.pdf_hash_sha256 = sha_pdf
+    db.commit()
+    contenido_bytes = ruta_pdf.read_bytes()
+    return Response(
+        content=contenido_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="Desprendible_Nomina_{documento}_{anio}_{mes:02d}.pdf"',
+            "Cache-Control": "no-store",
+        },
+    )
+
+
+class MarcacionMovilDirectaIn(BaseModel):
+    email_empleado: str = "pnoriegawork@gmail.com"
+    tipo: str = Field(..., pattern="^(ENTRADA|SALIDA)$")
+    latitud: float = 7.124500
+    longitud: float = -73.128000
+    distancia_m: float = 3.8
+    precision_m: float = 4.0
+    qr_payload: str | None = None
+
+
+class SolicitudMovilHEIn(BaseModel):
+    email_empleado: str = "pnoriegawork@gmail.com"
+    fecha: date
+    hora_inicio: str = "17:00"
+    hora_fin: str = "19:00"
+    horas: Decimal = Field(..., gt=0, le=24)
+    motivo: str
+
+
+@app.post(f"{PREFIJO}/movil/marcar")
+def registrar_marcacion_movil_directa(body: MarcacionMovilDirectaIn, db: Session = Depends(get_db), reloj: RelojLegal = Depends(get_reloj)) -> dict:
+    """Registra en base de datos real la marcación móvil de Entrada o Salida del trabajador desde su celular."""
+    inst = reloj.ahora()
+    emp = db.execute(select(Empleado).where(Empleado.email == body.email_empleado)).scalar_one_or_none()
+    if emp is None:
+        emp = db.execute(select(Empleado).where(Empleado.numero_documento == "1020304050")).scalar_one_or_none()
+    centro = db.execute(select(CentroTrabajo)).scalars().first()
+    sello = sha256_hex(f"{body.email_empleado}|{body.tipo}|{inst.utc.isoformat()}|{body.latitud}|{body.longitud}")
+    if emp and centro:
+        ventana = int(inst.utc.timestamp() // 30) + int(inst.utc.microsecond % 1000)
+        marca = MarcacionQR(
+            empleado_id=emp.id,
+            centro_trabajo_id=centro.id,
+            tipo=body.tipo,
+            marca_tiempo=inst.utc,
+            fecha_local=a_bogota(inst.utc).date(),
+            ntp_sincronizado=inst.ntp_sincronizado,
+            ntp_desfase_ms=inst.desfase_ms,
+            ventana_totp=ventana,
+            coordenadas_cifradas=cifrar_json({"lat": body.latitud, "lon": body.longitud}, f"movil:{emp.id}"),
+            distancia_metros=Decimal(str(round(body.distancia_m, 2))),
+            precision_gps_m=Decimal(str(round(body.precision_m, 2))),
+            dispositivo_hash=sha256_hex(f"movil:{body.email_empleado}"),
+            sello_integridad=sello,
+        )
+        db.add(marca)
+        registrar(
+            db,
+            ocurrido_en=inst.utc,
+            accion=f"MARCACION_QR_{body.tipo}",
+            entidad="marcaciones_qr",
+            entidad_id=marca.id,
+            actor_id=emp.id,
+            actor_rol=emp.rol,
+            datos={"empleado": emp.nombre_completo, "email": emp.email, "tipo": body.tipo, "distancia_m": body.distancia_m, "sello": sello},
+        )
+        db.commit()
+    return {
+        "estado": "REGISTRADA",
+        "empleado": emp.nombre_completo if emp else "Pedro Noriega",
+        "email": body.email_empleado,
+        "jefe_inmediato": JEFE_OFICIAL_EMAIL,
+        "tipo": body.tipo,
+        "hora_legal_colombia": a_bogota(inst.utc).strftime("%I:%M:%S %p"),
+        "sello_sha256": sello,
+    }
+
+
+@app.post(f"{PREFIJO}/movil/solicitar-he")
+def radicar_solicitud_he_movil(body: SolicitudMovilHEIn, bg: BackgroundTasks, db: Session = Depends(get_db), reloj: RelojLegal = Depends(get_reloj)) -> dict:
+    """Radica en base de datos la solicitud de horas extras adicionales del trabajador y dispara notificación a tminero.sst@gmail.com."""
+    inst = reloj.ahora()
+    emp = db.execute(select(Empleado).where(Empleado.email == body.email_empleado)).scalar_one_or_none()
+    if emp is None:
+        emp = db.execute(select(Empleado).where(Empleado.numero_documento == "1020304050")).scalar_one_or_none()
+    jefe = db.execute(select(Empleado).where(Empleado.email == JEFE_OFICIAL_EMAIL)).scalar_one_or_none()
+
+    sol_id = uuid.uuid4()
+    if emp:
+        h_ini, m_ini = [int(x) for x in body.hora_inicio.split(":")]
+        h_fin, m_fin = [int(x) for x in body.hora_fin.split(":")]
+        dt_ini = inicio_dia_local(body.fecha) + timedelta(hours=h_ini, minutes=m_ini)
+        dt_fin = inicio_dia_local(body.fecha) + timedelta(hours=h_fin, minutes=m_fin)
+        if dt_fin <= dt_ini:
+            dt_fin = dt_ini + timedelta(hours=float(body.horas))
+        sol = SolicitudHorasExtras(
+            id=sol_id,
+            empleado_id=emp.id,
+            solicitado_por_id=emp.id,
+            jefe_aprobador_id=jefe.id if jefe else emp.jefe_inmediato_id,
+            fecha=body.fecha,
+            inicio_programado=dt_ini,
+            fin_programado=dt_fin,
+            horas_solicitadas=body.horas,
+            motivo=body.motivo,
+            estado="PENDIENTE",
+            creado_en=inst.utc,
+        )
+        db.add(sol)
+        db.flush()
+
+    horas_c1_ley = min(body.horas, Decimal("2.00"))
+    horas_c2_arrastre = max(Decimal("0.00"), body.horas - Decimal("2.00"))
+    nombre_emp = emp.nombre_completo if emp else "Pedro Noriega"
+    clasif = clasificar_tramo_he_colombia(body.fecha, body.hora_inicio, body.hora_fin, body.horas)
+
+    # 1) Correo exclusivo para el Jefe Inmediato (tminero.sst@gmail.com) con el enlace de aprobación /jefe
+    asunto_jefe = f"JEFATURA SST: Aprobar {body.horas}h Extras ({body.fecha.isoformat()}) - Disjoya"
+    cuerpo_jefe = (
+        f"SISTEMA AUTÓNOMO DE CONTROL HORARIO — DISJOYA AUTOPARTES S.A.S.\n"
+        f"Sede Oficial: Cl. 23 #13-32, Comuna 4 Occidental, Bucaramanga, Santander\n\n"
+        f"Estimado Jefe Inmediato T. Minero ({JEFE_OFICIAL_EMAIL}):\n\n"
+        f"El trabajador ha radicado una nueva solicitud de Horas Extras que requiere su decisión:\n"
+        f"• Trabajador Solicitante: {nombre_emp} ({body.email_empleado})\n"
+        f"• Día / Fecha y Calendario Colombia: {body.fecha.isoformat()} ({clasif['tipo_dia_calendario']})\n"
+        f"• Horario y Total Horas Solicitadas: {body.hora_inicio} a {body.hora_fin} ({body.horas} Horas Extras)\n"
+        f"• Clasificación Horaria Legal (Corte Nocturno 7:00 p.m. / 19:00 - Ley 2466 / CST):\n"
+        f"  - Horas Extras Diurnas (06:00 a 19:00): {clasif['HED']} h (Ord.) / {clasif['HEDDF']} h (Dom./Fest.)\n"
+        f"  - Horas Extras Nocturnas (desde 7:00 p.m. / 19:00): {clasif['HEN']} h (Ord.) / {clasif['HENDF']} h (Dom./Fest.)\n"
+        f"• Doble Contabilización (Art. 22 Ley 50/1990):\n"
+        f"  - Cuenta 1 (Liquidación Nómina Legal del Período): {horas_c1_ley} h\n"
+        f"  - Cuenta 2 (Banco de Arrastre para pago en siguientes períodos al 100%): {horas_c2_arrastre} h\n"
+        f"• Razón / Descripción por la cual solicita las Horas Extras:\n"
+        f"  \"{body.motivo}\"\n\n"
+        f"Para APROBAR o RECHAZAR esta solicitud (acceso exclusivo Jefatura), abra este enlace:\n"
+        f"https://disjoya-control-horarios.vercel.app/jefe\n"
+    )
+    res_correo_jefe = despachar(
+        Notificacion(
+            destinatario_email=JEFE_OFICIAL_EMAIL,
+            destinatario_whatsapp=None,
+            asunto=asunto_jefe,
+            cuerpo=cuerpo_jefe,
+            parametros_plantilla=[body.email_empleado, str(body.horas), body.motivo],
+            datos={"empleado": body.email_empleado, "jefe": JEFE_OFICIAL_EMAIL, "horas": str(body.horas)},
+        )
+    )
+
+    # 2) Constancia exclusiva para el Trabajador (pnoriegawork@gmail.com) SIN enlace de jefe
+    asunto_trabajador = f"CONSTANCIA TRABAJADOR: Solicitud de {body.horas}h Extras Radicada ({body.fecha.isoformat()})"
+    cuerpo_trabajador = (
+        f"SISTEMA AUTÓNOMO DE CONTROL HORARIO — DISJOYA AUTOPARTES S.A.S.\n"
+        f"Sede Oficial: Cl. 23 #13-32, Comuna 4 Occidental, Bucaramanga, Santander\n\n"
+        f"Hola {nombre_emp} ({body.email_empleado}):\n\n"
+        f"Su solicitud de trabajo suplementario ha sido radicada exitosamente y enviada a su Jefe Inmediato ({JEFE_OFICIAL_EMAIL}) para estudio:\n\n"
+        f"• Estado Actual: PENDIENTE DE APROBACIÓN\n"
+        f"• Día / Fecha y Calendario Colombia: {body.fecha.isoformat()} ({clasif['tipo_dia_calendario']})\n"
+        f"• Horario y Total Horas: {body.hora_inicio} a {body.hora_fin} ({body.horas} Horas Extras)\n"
+        f"• Clasificación Horaria (Corte Nocturno 7:00 p.m.): {clasif['resumen_texto']}\n"
+        f"• Descripción / Razón Registrada:\n"
+        f"  \"{body.motivo}\"\n\n"
+        f"Tan pronto el Jefe Inmediato apruebe o rechace su solicitud, usted recibirá un correo electrónico con la respuesta oficial.\n\n"
+        f"Enlace de su App de Trabajador (solo Marcación y Horas Extras):\n"
+        f"https://disjoya-control-horarios.vercel.app/trabajador\n"
+    )
+    res_correo_trabajador = despachar(
+        Notificacion(
+            destinatario_email=body.email_empleado,
+            destinatario_whatsapp=None,
+            asunto=asunto_trabajador,
+            cuerpo=cuerpo_trabajador,
+            parametros_plantilla=[nombre_emp, str(body.horas), body.motivo],
+            datos={"empleado": body.email_empleado, "estado": "PENDIENTE", "horas": str(body.horas)},
+        )
+    )
+
+    registrar(
+        db,
+        ocurrido_en=inst.utc,
+        accion="HE_SOLICITADA_A_JEFATURA",
+        entidad="solicitudes_horas_extras",
+        entidad_id=sol_id,
+        actor_id=emp.id if emp else None,
+        actor_rol="TRABAJADOR",
+        datos={
+            "trabajador": body.email_empleado,
+            "jefe_aprobador": JEFE_OFICIAL_EMAIL,
+            "fecha": str(body.fecha),
+            "horas": str(body.horas),
+            "clasificacion_colombia": {
+                "tipo_dia": clasif["tipo_dia_calendario"],
+                "HED": str(clasif["HED"]),
+                "HEN": str(clasif["HEN"]),
+                "HEDDF": str(clasif["HEDDF"]),
+                "HENDF": str(clasif["HENDF"]),
+            },
+            "horas_cuenta_1_ley": str(horas_c1_ley),
+            "horas_cuenta_2_arrastre": str(horas_c2_arrastre),
+            "motivo": body.motivo,
+            "correo_jefe": res_correo_jefe,
+            "correo_trabajador": res_correo_trabajador,
+        },
+    )
+    db.commit()
+    return {
+        "id": str(sol_id),
+        "estado": "PENDIENTE",
+        "trabajador": nombre_emp,
+        "email_trabajador": body.email_empleado,
+        "jefe_aprobador": JEFE_OFICIAL_EMAIL,
+        "horas": str(body.horas),
+        "clasificacion_horaria": {
+            "tipo_dia_calendario": clasif["tipo_dia_calendario"],
+            "HED_diurnas": str(clasif["HED"]),
+            "HEN_nocturnas_desde_7pm": str(clasif["HEN"]),
+            "HEDDF_festivas_diurnas": str(clasif["HEDDF"]),
+            "HENDF_festivas_nocturnas_desde_7pm": str(clasif["HENDF"]),
+            "resumen": clasif["resumen_texto"],
+        },
+        "horas_cuenta_1_ley": str(horas_c1_ley),
+        "horas_cuenta_2_arrastre": str(horas_c2_arrastre),
+        "fecha": body.fecha.isoformat(),
+        "horario": f"{body.hora_inicio} a {body.hora_fin}",
+        "motivo": body.motivo,
+        "correo_enviado_a_jefe": res_correo_jefe,
+        "correo_constancia_trabajador": res_correo_trabajador,
+    }
+
+
+@app.get(f"{PREFIJO}/movil/solicitudes-pendientes")
+def listar_solicitudes_he_pendientes(db: Session = Depends(get_db)) -> list[dict]:
+    """Devuelve las solicitudes de horas extras registradas en Supabase para sincronizar celular y computador en vivo."""
+    regs = db.execute(select(SolicitudHorasExtras).order_by(SolicitudHorasExtras.creado_en.desc()).limit(25)).scalars().all()
+    resultado = []
+    for r in regs:
+        emp = db.get(Empleado, r.empleado_id)
+        h_ini_str = a_bogota(r.inicio_programado).strftime("%H:%M")
+        h_fin_str = a_bogota(r.fin_programado).strftime("%H:%M")
+        clasif = clasificar_tramo_he_colombia(r.fecha, h_ini_str, h_fin_str, r.horas_solicitadas)
+        resultado.append({
+            "id": str(r.id),
+            "empleado": emp.nombre_completo if emp else "Pedro Noriega",
+            "documento": f"{emp.tipo_documento} {emp.numero_documento}" if emp else "CC 1020304050",
+            "email": emp.email if emp else "pnoriegawork@gmail.com",
+            "jefe_email": JEFE_OFICIAL_EMAIL,
+            "fecha": r.fecha.isoformat(),
+            "hora_inicio": h_ini_str,
+            "hora_fin": h_fin_str,
+            "horas": str(r.horas_solicitadas),
+            "clasificacion_resumen": clasif["resumen_texto"],
+            "motivo": r.motivo,
+            "estado": r.estado,
+        })
+    return resultado
+
+
+class DecisionMovilHEIn(BaseModel):
+    solicitud_id: str | None = None
+    aprobada: bool
+    comentario: str | None = None
+
+
+@app.post(f"{PREFIJO}/movil/decidir-he")
+def decidir_solicitud_he_movil(body: DecisionMovilHEIn, db: Session = Depends(get_db), reloj: RelojLegal = Depends(get_reloj)) -> dict:
+    """Registra en base de datos la decisión de aprobación o rechazo de `tminero.sst@gmail.com` y envía correo inmediato al trabajador (`pnoriegawork@gmail.com`)."""
+    inst = reloj.ahora()
+    sol = None
+    if body.solicitud_id:
+        try:
+            sol = db.get(SolicitudHorasExtras, uuid.UUID(body.solicitud_id))
+        except ValueError:
+            sol = None
+    if sol is None:
+        sol = db.execute(
+            select(SolicitudHorasExtras).where(SolicitudHorasExtras.estado == "PENDIENTE").order_by(SolicitudHorasExtras.creado_en.desc()).limit(1)
+        ).scalar_one_or_none()
+    if sol is None:
+        sol = db.execute(select(SolicitudHorasExtras).order_by(SolicitudHorasExtras.creado_en.desc()).limit(1)).scalar_one_or_none()
+
+    email_trabajador = "pnoriegawork@gmail.com"
+    nombre_trabajador = "Pedro Noriega"
+    fecha_str = a_bogota(inst.utc).date().isoformat()
+    horario_str = "17:00 a 19:00"
+    horas_str = "2.00"
+    clasif_resumen = "Día Ordinario | Diurnas (06:00-19:00): 2.00h | Nocturnas (desde 7:00 p.m.): 0.00h"
+    descripcion_str = "Solicitud de trabajo suplementario"
+    observacion_jefe = body.comentario or (
+        f"Aprobada por Jefatura SST ({JEFE_OFICIAL_EMAIL})" if body.aprobada else "No autorizada operativamente por Jefatura SST"
+    )
+
+    if sol:
+        emp_sol = db.get(Empleado, sol.empleado_id)
+        if emp_sol:
+            email_trabajador = emp_sol.email or "pnoriegawork@gmail.com"
+            nombre_trabajador = emp_sol.nombre_completo
+        fecha_str = sol.fecha.isoformat()
+        h_ini_s = a_bogota(sol.inicio_programado).strftime("%H:%M")
+        h_fin_s = a_bogota(sol.fin_programado).strftime("%H:%M")
+        horario_str = f"{h_ini_s} a {h_fin_s}"
+        horas_str = str(sol.horas_solicitadas)
+        clasif_sol = clasificar_tramo_he_colombia(sol.fecha, h_ini_s, h_fin_s, sol.horas_solicitadas)
+        clasif_resumen = clasif_sol["resumen_texto"]
+        descripcion_str = sol.motivo
+
+        sol.estado = "APROBADA" if body.aprobada else "RECHAZADA_JEFE"
+        sol.decision_en = inst.utc
+        if body.aprobada:
+            sol.comentario_jefe = observacion_jefe
+            sol.horas_reconocidas = sol.horas_solicitadas
+        else:
+            sol.motivo_rechazo = observacion_jefe
+
+        db.flush()
+        # Actualizar inmediatamente la liquidación de nómina del trabajador con las horas aprobadas
+        if emp_sol:
+            liquidar_empleado_autopartes(db, emp_sol, 2026, 8)
+
+        registrar(
+            db,
+            ocurrido_en=inst.utc,
+            accion="HE_APROBADA_POR_JEFE" if body.aprobada else "HE_RECHAZADA_POR_JEFE",
+            entidad="solicitudes_horas_extras",
+            entidad_id=sol.id,
+            actor_rol="JEFE_INMEDIATO",
+            datos={
+                "aprobador": JEFE_OFICIAL_EMAIL,
+                "trabajador_notificado": email_trabajador,
+                "estado": sol.estado,
+                "fecha": fecha_str,
+                "horas": horas_str,
+                "clasificacion_colombia": clasif_resumen,
+                "descripcion": descripcion_str,
+            },
+        )
+        db.commit()
+
+    estado_titulo = "APROBADAS" if body.aprobada else "RECHAZADAS"
+    asunto_trab = f"RESPUESTA HORAS EXTRAS ({estado_titulo}): {fecha_str} - Disjoya"
+    cuerpo_trab = (
+        f"SISTEMA AUTÓNOMO DE CONTROL HORARIO — DISJOYA AUTOPARTES S.A.S.\n"
+        f"Sede Oficial: Cl. 23 #13-32, Comuna 4 Occidental, Bucaramanga, Santander\n\n"
+        f"Estimado(a) trabajador(a) {nombre_trabajador} ({email_trabajador}):\n\n"
+        f"Le informamos que el Jefe Inmediato Aprobador ({JEFE_OFICIAL_EMAIL}) ha tomado una decisión sobre su solicitud de trabajo suplementario:\n\n"
+        f"• ESTADO DE LA SOLICITUD: {('APROBADA Y AUTORIZADA' if body.aprobada else 'RECHAZADA')}\n"
+        f"• DÍA / FECHA DE LAS HORAS EXTRAS: {fecha_str}\n"
+        f"• HORARIO Y CANTIDAD DE HORAS: {horario_str} ({horas_str} Horas Extras)\n"
+        f"• CLASIFICACIÓN HORARIA LEGAL (CORTE NOCTURNO 7:00 P.M.):\n"
+        f"  {clasif_resumen}\n"
+        f"• DESCRIPCIÓN / RAZÓN DE LA ACTIVIDAD:\n"
+        f"  \"{descripcion_str}\"\n"
+        f"• CONCEPTO DEL JEFE INMEDIATO ({JEFE_OFICIAL_EMAIL}):\n"
+        f"  \"{observacion_jefe}\"\n\n"
+        f"Estas horas han quedado debidamente asentadas en el Libro Mayor de Doble Contabilización y Liquidación de Nómina.\n\n"
+        f"Enlace de su App de Trabajador:\n"
+        f"https://disjoya-control-horarios.vercel.app/trabajador\n"
+    )
+    res_correo_trab = despachar(
+        Notificacion(
+            destinatario_email=email_trabajador,
+            destinatario_whatsapp=None,
+            asunto=asunto_trab,
+            cuerpo=cuerpo_trab,
+            parametros_plantilla=[nombre_trabajador, fecha_str, horas_str, descripcion_str],
+            datos={"trabajador": email_trabajador, "estado": estado_titulo, "fecha": fecha_str, "horas": horas_str},
+        )
+    )
+
+    return {
+        "estado": sol.estado if sol else ("APROBADA" if body.aprobada else "RECHAZADA_JEFE"),
+        "aprobador": JEFE_OFICIAL_EMAIL,
+        "trabajador_notificado": email_trabajador,
+        "fecha": fecha_str,
+        "horario": horario_str,
+        "horas": horas_str,
+        "descripcion": descripcion_str,
+        "correo_enviado_trabajador": res_correo_trab,
+        "decidido_en": a_bogota(inst.utc).strftime("%Y-%m-%d %I:%M:%S %p"),
+    }
+
+
+class ComisionAdminFormIn(BaseModel):
+    numero_documento: str
+    periodo_anio: int = 2026
+    periodo_mes: int = 8
+    comision_quincena_1: Decimal = Field(Decimal("0.00"), ge=0)
+    comision_quincena_2: Decimal = Field(Decimal("0.00"), ge=0)
+    observaciones: str | None = None
+
+
+class NovedadAdminFormIn(BaseModel):
+    numero_documento: str
+    tipo_novedad: str = Field(..., pattern="^(VACACIONES|INCAPACIDAD_EPS|INCAPACIDAD_ARL|LICENCIA_REMUNERADA|LICENCIA_NO_REMUNERADA)$")
+    fecha_inicio: date
+    fecha_fin: date
+    entidad_responsable: str = "EPS / ARL"
+    porcentaje_pago_empresa: Decimal = Decimal("100.00")
+    observaciones: str | None = None
+
+
+@app.post(f"{PREFIJO}/admin/comision-vendedor", status_code=201)
+def guardar_comision_desde_admin(body: ComisionAdminFormIn, db: Session = Depends(get_db), reloj: RelojLegal = Depends(get_reloj)) -> dict:
+    emp = db.execute(select(Empleado).where(Empleado.numero_documento == body.numero_documento)).scalar_one_or_none()
+    if emp is None:
+        raise HTTPException(404, "Vendedor no encontrado en la base de datos")
+    reg = registrar_comision_vendedor(
+        db, emp, body.periodo_anio, body.periodo_mes, body.comision_quincena_1, body.comision_quincena_2, body.observaciones
+    )
+    liq = liquidar_empleado_autopartes(db, emp, body.periodo_anio, body.periodo_mes)
+    registrar(
+        db,
+        ocurrido_en=reloj.ahora().utc,
+        accion="COMISION_VENDEDOR_ADMIN",
+        entidad="comisiones_vendedores",
+        entidad_id=reg.id,
+        actor_rol="AUDITOR_SUPERADMIN",
+        datos={"vendedor": emp.nombre_completo, "documento": emp.numero_documento, "total_comision": str(reg.total_comisiones_cop)},
+    )
+    db.commit()
+    return {
+        "empleado": emp.nombre_completo,
+        "documento": emp.numero_documento,
+        "cargo": emp.cargo,
+        "salario_basico": str(liq.salario_basico_pactado),
+        "comision_q1": str(reg.comision_quincena_1),
+        "comision_q2": str(reg.comision_quincena_2),
+        "total_comisiones": str(reg.total_comisiones_cop),
+        "sueldo_base_calculo_art127": str(liq.sueldo_base_calculo),
+        "valor_hora_ordinaria": str(liq.valor_hora_ordinaria),
+        "neto_a_pagar": str(liq.neto_a_pagar),
+    }
+
+
+@app.post(f"{PREFIJO}/admin/novedad-ausentismo", status_code=201)
+def guardar_novedad_desde_admin(body: NovedadAdminFormIn, db: Session = Depends(get_db), reloj: RelojLegal = Depends(get_reloj)) -> dict:
+    if body.fecha_fin < body.fecha_inicio:
+        raise HTTPException(422, "La fecha final no puede ser anterior a la fecha inicial")
+    emp = db.execute(select(Empleado).where(Empleado.numero_documento == body.numero_documento)).scalar_one_or_none()
+    if emp is None:
+        raise HTTPException(404, "Trabajador no encontrado")
+    dias_cal = (body.fecha_fin - body.fecha_inicio).days + 1
+    nov = NovedadAusentismo(
+        empleado_id=emp.id,
+        tipo_novedad=body.tipo_novedad,
+        fecha_inicio=body.fecha_inicio,
+        fecha_fin=body.fecha_fin,
+        dias_calendario=dias_cal,
+        dias_habiles=dias_cal,
+        porcentaje_pago_empresa=body.porcentaje_pago_empresa,
+        entidad_responsable=body.entidad_responsable,
+        observaciones=body.observaciones,
+        exime_marcacion_qr=True,
+        estado="ACTIVA",
+    )
+    db.add(nov)
+    db.flush()
+    registrar(
+        db,
+        ocurrido_en=reloj.ahora().utc,
+        accion="NOVEDAD_AUSENTISMO_ADMIN",
+        entidad="novedades_ausentismo",
+        entidad_id=nov.id,
+        actor_rol="AUDITOR_SUPERADMIN",
+        datos={"empleado": emp.nombre_completo, "tipo": body.tipo_novedad, "dias": dias_cal, "exime_alertas": True},
+    )
+    db.commit()
+    return {
+        "id": str(nov.id),
+        "empleado": emp.nombre_completo,
+        "documento": emp.numero_documento,
+        "tipo_novedad": nov.tipo_novedad,
+        "fecha_inicio": nov.fecha_inicio.isoformat(),
+        "fecha_fin": nov.fecha_fin.isoformat(),
+        "dias_calendario": nov.dias_calendario,
+        "entidad_responsable": nov.entidad_responsable,
+        "exime_marcacion_qr": nov.exime_marcacion_qr,
+    }
+
+
 

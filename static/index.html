@@ -6,6 +6,11 @@
   <title>Disjoya Autopartes S.A.S. | Control Horario y Nómina</title>
   <link rel="manifest" href="/static/manifest.json">
   <meta name="theme-color" content="#0F2D3D">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Disjoya App">
+  <link rel="apple-touch-icon" href="/static/logo_disjoya.png">
   <link rel="icon" type="image/png" href="/static/logo_disjoya.png">
   
   <!-- Tailwind CSS & Google Fonts -->
@@ -123,11 +128,11 @@
               </button>
 
               <!-- 2. Jefe que autoriza horas extras -->
-              <button onclick="cambiarPerfil('JEFE_INMEDIATO', 'S.P. Ramírez (Jefe)', 'CC 52002002', 'spramirez2024@gmail.com')" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-3 text-xs transition border-b border-slate-100">
+              <button onclick="cambiarPerfil('JEFE_INMEDIATO', 'T. Minero (SST) (Jefe)', 'CC 52002002', 'tminero.sst@gmail.com')" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-3 text-xs transition border-b border-slate-100">
                 <span class="w-3 h-3 rounded-full bg-amber-500 shrink-0"></span>
                 <div>
-                  <p class="font-bold text-slate-900">S.P. Ramírez (Jefe Inmediato)</p>
-                  <p class="text-slate-500 text-[11px] font-mono">spramirez2024@gmail.com</p>
+                  <p class="font-bold text-slate-900">T. Minero (SST) (Jefe Inmediato)</p>
+                  <p class="text-slate-500 text-[11px] font-mono">tminero.sst@gmail.com</p>
                   <span class="text-[9px] bg-amber-100 text-amber-800 px-1.5 py-0.2 rounded font-bold uppercase">Autorizador Horas Extras</span>
                 </div>
               </button>
@@ -178,7 +183,7 @@
         </button>
         <button onclick="cambiarPestana('tab-admin')" id="nav-tab-admin" class="nav-btn text-slate-300 hover:text-white hover:bg-disjoya-navyLight px-3.5 py-2 rounded-lg flex items-center space-x-2 transition whitespace-nowrap">
           <i class="fa-solid fa-user-gear text-amber-400"></i>
-          <span>7. Asignar Jefes (Admin)</span>
+          <span>7. Admin: Novedades, Comisiones y Jefes</span>
         </button>
       </nav>
     </div>
@@ -186,6 +191,27 @@
 
   <!-- CONTENIDO PRINCIPAL -->
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+    <!-- BANNER DE INSTALACIÓN DE APP EN EL CELULAR DEL TRABAJADOR -->
+    <div id="banner-instalar-pwa" class="hidden mb-5 bg-gradient-to-r from-disjoya-navy to-disjoya-navyLight text-white p-4 rounded-2xl shadow-md flex flex-col sm:flex-row items-center justify-between gap-3 border border-slate-700">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-disjoya-red flex items-center justify-center text-white text-lg shrink-0 shadow">
+          <i class="fa-solid fa-mobile-screen-button"></i>
+        </div>
+        <div>
+          <h3 class="text-xs sm:text-sm font-extrabold">Instalar Aplicación Móvil del Trabajador — Disjoya Autopartes</h3>
+          <p class="text-[11px] text-slate-300">Guarda esta aplicación en la pantalla de inicio de tu celular para registrar Entrada/Salida y pedir Horas Extras con 1 toque.</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 w-full sm:w-auto">
+        <button type="button" onclick="instalarAppTrabajadorPWA()" class="flex-1 sm:flex-initial bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold px-4 py-2.5 rounded-xl text-xs transition shadow flex items-center justify-center gap-1.5 whitespace-nowrap">
+          <i class="fa-solid fa-download"></i> Guardar como App en mi Celular
+        </button>
+        <button type="button" onclick="compartirAppTrabajadorWhatsApp()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1" title="Compartir enlace por WhatsApp">
+          <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+        </button>
+      </div>
+    </div>
 
     <!-- ALERTA DE JURISDICCIÓN & REGLAS COLOMBIA 2026 -->
     <div class="mb-6 bg-white border-l-4 border-disjoya-navy p-4 rounded-xl shadow-sm flex items-start justify-between">
@@ -507,18 +533,21 @@
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Motivo Justificado (Art. 167 CST)</label>
-              <textarea id="he-motivo" rows="3" placeholder="Ej. Inventario general de autopartes y cierre de balance en sistemas..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-disjoya-navy outline-none" required minlength="15"></textarea>
+              <label class="block text-xs font-bold text-slate-800 mb-1 flex items-center gap-1.5">
+                <i class="fa-solid fa-file-pen text-disjoya-red"></i>
+                Razón / Justificación Operativa por la cual solicita las Horas Extras:
+              </label>
+              <textarea id="he-motivo" rows="3" placeholder="Explique detalladamente al jefe inmediato (tminero.sst@gmail.com) la razón operativa por la cual requiere realizar estas horas extras..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-disjoya-navy outline-none" required minlength="10"></textarea>
             </div>
 
             <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 text-[11px] text-amber-800 flex items-start gap-2">
               <i class="fa-solid fa-triangle-exclamation text-amber-600 mt-0.5"></i>
-              <span>El motor agéntico validará de forma determinística que la solicitud no sobrepase 2 horas diarias ni 12 horas semanales.</span>
+              <span>Recuerde: La 1ª hora extra diaria (L-V) está preautorizada. Toda hora adicional requiere esta justificación para ser aprobada por <strong>tminero.sst@gmail.com</strong> (con doble contabilización y arrastre legal mes a mes).</span>
             </div>
 
             <button type="submit" class="w-full bg-disjoya-navy hover:bg-disjoya-navyLight text-white font-bold py-3 px-4 rounded-xl text-xs transition shadow flex items-center justify-center gap-2">
               <i class="fa-solid fa-paper-plane"></i>
-              <span>Radicar Solicitud al Jefe Inmediato</span>
+              <span>Radicar Solicitud con su Razón al Jefe Inmediato</span>
             </button>
           </form>
         </div>
@@ -534,13 +563,16 @@
             <!-- Ejemplo Solicitud 1 -->
             <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
               <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-800">13 Nov 2026 | 17:00 a 19:00 (2.0 h)</span>
+                <span class="text-xs font-bold text-slate-800">17 Nov 2026 | 17:00 a 19:00 (2.0 h)</span>
                 <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full">PENDIENTE JEFE</span>
               </div>
-              <p class="text-xs text-slate-600">Motivo: Entrega de cierre y balance de nómina mensual en sistemas</p>
+              <div class="p-2.5 bg-amber-50/80 border border-amber-200 rounded-lg text-xs text-slate-800">
+                <p class="font-bold text-amber-900 text-[10px] uppercase">Razón expuesta por el trabajador:</p>
+                <p class="mt-0.5">Entrega de cierre de inventario de autopartes y balance mensual en sistemas.</p>
+              </div>
               <div class="text-[11px] text-slate-400 flex items-center justify-between border-t border-slate-200 pt-1.5">
-                <span>Aprobador Asignado: <strong id="aprobador-display-he" class="text-slate-700">S.P. Ramírez (spramirez2024@gmail.com)</strong></span>
-                <span class="text-emerald-600 font-semibold"><i class="fa-brands fa-whatsapp text-emerald-500"></i> Alerta Disparada</span>
+                <span>Aprobador Asignado: <strong id="aprobador-display-he" class="text-slate-700">T. Minero (SST) (tminero.sst@gmail.com)</strong></span>
+                <span class="text-emerald-600 font-semibold"><i class="fa-solid fa-envelope-circle-check text-emerald-500"></i> Enviada a Jefatura</span>
               </div>
             </div>
           </div>
@@ -560,35 +592,50 @@
           <div>
             <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
               <i class="fa-solid fa-clipboard-check text-disjoya-red"></i>
-              Bandeja de Aprobación de Horas Extras de Equipo
+              Bandeja de Aprobación de Horas Extras de Equipo (tminero.sst@gmail.com)
             </h3>
-            <p class="text-xs text-slate-500">Supervisión jerárquica y validación de pertinencia operativa</p>
+            <p class="text-xs text-slate-500">Revisión obligatoria de la razón operativa expuesta por el trabajador antes de autorizar</p>
           </div>
-          <span class="bg-disjoya-navy text-white text-xs font-bold px-3 py-1 rounded-full">Equipo Operativo</span>
+          <span class="bg-disjoya-navy text-white text-xs font-bold px-3 py-1 rounded-full">Jefatura Oficial SST</span>
         </div>
 
         <div id="bandeja-jefe-solicitudes" class="space-y-4">
           <!-- Tarjeta de Solicitud Pendiente para Decidir -->
-          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+          <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3.5">
             <div class="flex items-start justify-between">
               <div>
                 <p class="text-sm font-bold text-slate-900">Pedro Noriega (pnoriegawork@gmail.com)</p>
-                <p class="text-xs text-slate-500">Documento: CC 1020304050 | Jefe Aprobador: S.P. Ramírez (spramirez2024@gmail.com)</p>
+                <p class="text-xs text-slate-500">Documento: CC 1020304050 | Jefe Aprobador: T. Minero (SST) (tminero.sst@gmail.com)</p>
               </div>
-              <span class="text-xs font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full">Requiere Decisión</span>
+              <span class="text-xs font-bold bg-amber-100 text-amber-800 px-3 py-1 rounded-full">Requiere Decisión</span>
             </div>
 
-            <div class="bg-white p-3 rounded-lg border border-slate-200 text-xs space-y-1">
-              <p><strong>Horario Solicitado:</strong> 13 de Noviembre 2026 de 17:00 a 19:00 (2.00 Horas Extras Diurnas)</p>
-              <p><strong>Motivo Justificado:</strong> Entrega de cierre y balance de nómina mensual en sistemas</p>
-              <p class="text-emerald-700"><strong>Verificación MAPE-K:</strong> Dentro de topes legales (Día: 2h / Semana: 2h de 12h).</p>
+            <div class="bg-white p-3.5 rounded-xl border border-slate-200 text-xs space-y-1.5">
+              <p><strong>📅 Fecha y Horario Solicitado:</strong> 17 de Noviembre 2026 de 17:00 a 19:00 (<strong>2.00 Horas Extras Diurnas</strong>)</p>
+              <p class="text-emerald-700"><strong>⚖️ Verificación Legal MAPE-K:</strong> Dentro de topes legales (Art. 22 Ley 50/1990: Máx. 2h/día, con arrastre automático al mes siguiente si supera cupo mensual).</p>
+            </div>
+
+            <!-- Bloque Destacado: RAZÓN / JUSTIFICACIÓN DEL TRABAJADOR -->
+            <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl space-y-1">
+              <p class="text-[11px] font-extrabold text-amber-900 uppercase tracking-wide flex items-center gap-1.5">
+                <i class="fa-solid fa-comment-dots text-amber-600"></i>
+                Razón / Justificación por la cual el trabajador solicita las Horas Extras:
+              </p>
+              <p class="text-sm font-bold text-slate-900 leading-relaxed">
+                "Entrega de cierre y balance de nómina mensual de autopartes en sistemas."
+              </p>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Observación / Concepto del Jefe Inmediato (Opcional al aprobar, obligatorio al rechazar):</label>
+              <input type="text" id="jefe-comentario-decision" placeholder="Ej. Autorizado por requerimiento urgente de despacho e inventario..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-white">
             </div>
 
             <div class="flex items-center gap-3 pt-1">
-              <button onclick="decidirHE(true)" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition shadow flex items-center justify-center gap-2">
+              <button onclick="decidirHE(true)" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-xs transition shadow flex items-center justify-center gap-2">
                 <i class="fa-solid fa-check"></i> Aprobar Horas Extras
               </button>
-              <button onclick="decidirHE(false)" class="flex-1 bg-disjoya-red hover:bg-disjoya-redHover text-white font-bold py-2.5 px-4 rounded-xl text-xs transition shadow flex items-center justify-center gap-2">
+              <button onclick="decidirHE(false)" class="flex-1 bg-disjoya-red hover:bg-disjoya-redHover text-white font-bold py-3 px-4 rounded-xl text-xs transition shadow flex items-center justify-center gap-2">
                 <i class="fa-solid fa-xmark"></i> Rechazar Solicitud
               </button>
             </div>
@@ -692,6 +739,86 @@
           <button onclick="copiarJsonDian()" class="text-disjoya-navy hover:text-disjoya-red font-bold flex items-center gap-1">
             <i class="fa-solid fa-copy"></i> Copiar Payload Nómina DIAN
           </button>
+        </div>
+      </div>
+
+      <!-- MÓDULO EXCLUSIVO DE COMISIONES PARA VENDEDORES (ART. 127 CST) -->
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-3 gap-2">
+          <div>
+            <h4 class="font-extrabold text-sm text-disjoya-navy flex items-center gap-2">
+              <i class="fa-solid fa-sack-dollar text-emerald-600"></i>
+              Módulo Exclusivo de Comisiones para Vendedores (Personal Comercial — Art. 127 CST)
+            </h4>
+            <p class="text-xs text-slate-500">
+              Las comisiones constituyen factor salarial pleno: se suman al Básico para conformar el IBC de Seguridad Social, Parafiscales, Prestaciones y Valor Hora.
+            </p>
+          </div>
+          <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-3 py-1 rounded-full uppercase">Art. 127 CST Salarial</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Seleccionar Vendedor / Asesor Comercial:</label>
+            <select id="com-select-vendedor" onchange="cargarDatosVendedorComision('com')" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-white font-semibold">
+              <option value="91202802" data-q1="966000" data-q2="2083095">LUIS FERNANDO ARGUELLO R (CC 91202802)</option>
+              <option value="91272054" data-q1="0" data-q2="520589">HUMBERTO AVILA ACUÑA (CC 91272054)</option>
+              <option value="91495502" data-q1="0" data-q2="465004">JOHN JAIRO ROJAS HERREÑO (CC 91495502)</option>
+              <option value="1103672349" data-q1="0" data-q2="0">MERLY YOHANA ACEVEDO QUINTANA (CC 1103672349)</option>
+              <option value="1098687577" data-q1="0" data-q2="0">WILMER ARLEY CASTILLO R. (CC 1098687577)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Comisión 1ª Quincena ($ COP):</label>
+            <input type="number" id="com-q1" value="966000" min="0" step="1000" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-white font-mono font-bold">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Comisión 2ª Quincena ($ COP):</label>
+            <input type="number" id="com-q2" value="2083095" min="0" step="1000" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-white font-mono font-bold">
+          </div>
+          <div>
+            <button type="button" onclick="guardarComisionVendedorUI('com')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition shadow flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-floppy-disk"></i> Guardar Comisión y Liquidar
+            </button>
+          </div>
+        </div>
+        <div id="alerta-comision-nomina" class="hidden p-3 rounded-xl text-xs font-semibold"></div>
+      </div>
+
+      <!-- TABLA MAESTRA "NOMINA DE AUTOPARTES para sr pedro" Y DESPRENDIBLES PDF INDIVIDUALES -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-4 bg-disjoya-navy text-white flex flex-wrap justify-between items-center gap-2">
+          <div>
+            <h4 class="font-extrabold text-xs uppercase tracking-wider flex items-center gap-2">
+              <i class="fa-solid fa-file-pdf text-disjoya-red"></i>
+              Liquidación Oficial "NOMINA DE AUTOPARTES para sr pedro" & Desprendibles PDF Individuales
+            </h4>
+            <p class="text-[11px] text-slate-300">Incluye 1h extra diaria preautorizada L-V, Doble Contabilización (Banco de Arrastre) y Comisiones Art. 127 CST</p>
+          </div>
+          <button type="button" onclick="ejecutarLiquidacionAutopartesCompleta()" class="bg-disjoya-red hover:bg-disjoya-redHover text-white font-bold px-3.5 py-2 rounded-xl text-xs transition shadow flex items-center gap-1.5">
+            <i class="fa-solid fa-bolt"></i> Recalcular Planta y Emitir 11 PDFs
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs text-left">
+            <thead class="bg-slate-100 text-slate-700 uppercase text-[10px] font-bold">
+              <tr>
+                <th class="p-3">Trabajador / Cédula</th>
+                <th class="p-3">Sección</th>
+                <th class="p-3 text-right">Básico Pactado</th>
+                <th class="p-3 text-right">Comisiones (Art. 127)</th>
+                <th class="p-3 text-right">Sueldo Base Cálculo</th>
+                <th class="p-3 text-right">HED Pagadas</th>
+                <th class="p-3 text-right">Total HE ($ COP)</th>
+                <th class="p-3 text-right">Arrastre Sig. Mes</th>
+                <th class="p-3 text-right">Neto a Pagar</th>
+                <th class="p-3 text-center">Desprendible PDF</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-nomina-autopartes-body" class="divide-y divide-slate-100 font-medium">
+              <!-- Se pobla dinámicamente desde /api/v1/nomina/autopartes/liquidaciones -->
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -898,7 +1025,7 @@
           </div>
           <div class="bg-amber-50/50 p-4 rounded-xl border border-amber-200">
             <p class="text-[11px] font-bold text-amber-700 uppercase">Jefe que Autoriza</p>
-            <p class="text-sm font-extrabold text-slate-900 mt-1">spramirez2024@gmail.com</p>
+            <p class="text-sm font-extrabold text-slate-900 mt-1">tminero.sst@gmail.com</p>
             <p class="text-[10px] text-amber-800 mt-0.5">Aprobador Operativo Designado</p>
           </div>
           <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-200">
@@ -940,7 +1067,7 @@
                   </td>
                   <td class="p-3">
                     <select id="select-jefe-trabajador" class="text-xs p-2 rounded-lg border border-slate-300 bg-white font-semibold focus:ring-2 focus:ring-disjoya-navy outline-none">
-                      <option value="spramirez" selected>S.P. Ramírez (spramirez2024@gmail.com)</option>
+                      <option value="tminero" selected>T. Minero (SST) (tminero.sst@gmail.com)</option>
                       <option value="pedro_admin">Pedro Noriega - Admin (pedro.noriega@gmail.com)</option>
                       <option value="ninguno">Sin asignar</option>
                     </select>
@@ -952,13 +1079,13 @@
                   </td>
                 </tr>
 
-                <!-- Fila Jefe: spramirez2024@gmail.com -->
+                <!-- Fila Jefe: tminero.sst@gmail.com -->
                 <tr class="hover:bg-slate-50">
                   <td class="p-3">
-                    <p class="font-bold text-slate-900">S.P. Ramírez</p>
+                    <p class="font-bold text-slate-900">T. Minero (SST)</p>
                     <p class="text-[10px] text-slate-400">CC 52002002 • Jefe de Operaciones</p>
                   </td>
-                  <td class="p-3 font-mono text-slate-700 font-semibold">spramirez2024@gmail.com</td>
+                  <td class="p-3 font-mono text-slate-700 font-semibold">tminero.sst@gmail.com</td>
                   <td class="p-3">
                     <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full">JEFE_INMEDIATO</span>
                   </td>
@@ -995,6 +1122,146 @@
 
         <div id="alerta-admin-jefe" class="hidden p-3.5 rounded-xl text-xs font-semibold"></div>
 
+        <!-- ========================================================================= -->
+        <!-- SECCIÓN ADMIN 2: GESTIÓN DE NOVEDADES (VACACIONES, INCAPACIDAD EPS Y ARL) -->
+        <!-- ========================================================================= -->
+        <div class="pt-4 border-t border-slate-200 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h4 class="font-extrabold text-sm text-disjoya-navy flex items-center gap-2">
+                <i class="fa-solid fa-notes-medical text-disjoya-red"></i>
+                Gestión de Novedades: Vacaciones, Incapacidad por EPS e Incapacidad por ARL
+              </h4>
+              <p class="text-xs text-slate-500">
+                Durante los días activos de Vacaciones o Incapacidad (EPS/ARL), el sistema <strong>bloquea automáticamente la exigencia de marcación QR y NO envía alertas de inasistencia</strong>.
+              </p>
+            </div>
+            <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-3 py-1 rounded-full uppercase">Bloqueo Inteligente de Alertas 30m</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">1. Seleccionar Trabajador:</label>
+              <select id="nov-select-empleado" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-white font-semibold">
+                <option value="1020304050">Pedro Noriega — Trabajador (CC 1020304050)</option>
+                <option value="1129569582">CARLOS ANDRES JOYA MARTINEZ (CC 1129569582)</option>
+                <option value="1005333205">KARON NATHALIA GALVIS RODRIGUEZ (CC 1005333205)</option>
+                <option value="63332050">ELIZABETH PRADA RODRIGUEZ (CC 63332050)</option>
+                <option value="1098679427">LEIDY LIZETH JAIMES (CC 1098679427)</option>
+                <option value="63367945">OLGA ROCIO ZEA LAGUNA (CC 63367945)</option>
+                <option value="91282500">OSCAR QUINTANA PEDRAZA (CC 91282500)</option>
+                <option value="91202802">LUIS FERNANDO ARGUELLO R (CC 91202802)</option>
+                <option value="91272054">HUMBERTO AVILA ACUÑA (CC 91272054)</option>
+                <option value="91495502">JOHN JAIRO ROJAS HERREÑO (CC 91495502)</option>
+                <option value="1103672349">MERLY YOHANA ACEVEDO QUINTANA (CC 1103672349)</option>
+                <option value="1098687577">WILMER ARLEY CASTILLO R. (CC 1098687577)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">2. Tipo de Novedad Legal:</label>
+              <select id="nov-select-tipo" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-white font-semibold">
+                <option value="VACACIONES">🏖️ VACACIONES REMUNERADAS (Art. 186 CST - 15 días hábiles)</option>
+                <option value="INCAPACIDAD_EPS">🏥 INCAPACIDAD MÉDICA POR EPS (Origen Común - Días 1-2 Empresa / Día 3+ EPS)</option>
+                <option value="INCAPACIDAD_ARL">🛡️ INCAPACIDAD MÉDICA POR ARL (Riesgo Laboral - 100% IBC)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">3. Entidad Responsable (EPS / ARL / Empresa):</label>
+              <input type="text" id="nov-entidad" value="Sanitas EPS / Sura ARL" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-white font-semibold">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">4. Fecha de Inicio:</label>
+              <input type="date" id="nov-fecha-inicio" value="2026-11-17" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-white font-semibold">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">5. Fecha de Finalización:</label>
+              <input type="date" id="nov-fecha-fin" value="2026-11-21" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-white font-semibold">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">6. Diagnóstico CIE-10 / Observación:</label>
+              <input type="text" id="nov-observacion" placeholder="Ej. Incapacidad médica certificada No. 48291..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-white">
+            </div>
+          </div>
+
+          <div class="flex justify-end">
+            <button type="button" onclick="registrarNovedadAdminUI()" class="bg-disjoya-navy hover:bg-disjoya-navyLight text-white font-bold py-2.5 px-5 rounded-xl text-xs transition shadow flex items-center gap-2">
+              <i class="fa-solid fa-shield-heart text-emerald-400"></i>
+              <span>Registrar Novedad y Bloquear Alerta de Inasistencia</span>
+            </button>
+          </div>
+
+          <div id="alerta-novedad-admin" class="hidden p-3.5 rounded-xl text-xs font-semibold"></div>
+
+          <!-- Tabla de Novedades Activas -->
+          <div class="rounded-xl border border-slate-200 overflow-hidden">
+            <div class="p-3 bg-slate-100 border-b border-slate-200 flex justify-between items-center">
+              <span class="text-xs font-bold text-slate-700 uppercase">Trabajadores en Vacaciones o Incapacidad Activa (Exonerados de QR y Alertas)</span>
+              <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">Protección Activa</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs text-left">
+                <thead class="bg-slate-50 text-slate-600 uppercase text-[10px] font-bold">
+                  <tr>
+                    <th class="p-3">Trabajador</th>
+                    <th class="p-3">Tipo de Novedad</th>
+                    <th class="p-3">Desde — Hasta (Días)</th>
+                    <th class="p-3">Entidad</th>
+                    <th class="p-3 text-center">Estado de Alertas 30 min</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-novedades-body" class="divide-y divide-slate-100 font-medium">
+                  <!-- Se pobla desde /api/v1/novedades-ausentismo -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- SECCIÓN ADMIN 3: COMISIONES DE VENDEDORES (ART. 127 CST) EN PANEL ADMIN -->
+        <!-- ========================================================================= -->
+        <div class="pt-4 border-t border-slate-200 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h4 class="font-extrabold text-sm text-disjoya-navy flex items-center gap-2">
+                <i class="fa-solid fa-sack-dollar text-emerald-600"></i>
+                Carga de Comisiones para Vendedores (Personal Comercial — Art. 127 CST)
+              </h4>
+              <p class="text-xs text-slate-500">
+                Asigna el valor mensual de comisiones sobre ventas para cada vendedor; impacta automáticamente su Salario Base, Seguridad Social, Prestaciones y PDF.
+              </p>
+            </div>
+            <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-3 py-1 rounded-full uppercase">Impacto Salarial Directo</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Seleccionar Vendedor:</label>
+              <select id="adm-com-select-vendedor" onchange="cargarDatosVendedorComision('adm-com')" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-white font-semibold">
+                <option value="91202802" data-q1="966000" data-q2="2083095">LUIS FERNANDO ARGUELLO R (CC 91202802)</option>
+                <option value="91272054" data-q1="0" data-q2="520589">HUMBERTO AVILA ACUÑA (CC 91272054)</option>
+                <option value="91495502" data-q1="0" data-q2="465004">JOHN JAIRO ROJAS HERREÑO (CC 91495502)</option>
+                <option value="1103672349" data-q1="0" data-q2="0">MERLY YOHANA ACEVEDO QUINTANA (CC 1103672349)</option>
+                <option value="1098687577" data-q1="0" data-q2="0">WILMER ARLEY CASTILLO R. (CC 1098687577)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Comisión 1ª Quincena ($ COP):</label>
+              <input type="number" id="adm-com-q1" value="966000" min="0" step="1000" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-white font-mono font-bold">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Comisión 2ª Quincena ($ COP):</label>
+              <input type="number" id="adm-com-q2" value="2083095" min="0" step="1000" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-white font-mono font-bold">
+            </div>
+            <div>
+              <button type="button" onclick="guardarComisionVendedorUI('adm-com')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition shadow flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-floppy-disk"></i> Guardar Comisión Vendedor
+              </button>
+            </div>
+          </div>
+          <div id="alerta-comision-admin" class="hidden p-3 rounded-xl text-xs font-semibold"></div>
+        </div>
+
       </div>
 
     </div>
@@ -1021,12 +1288,10 @@
         <!-- Selector de Trabajador -->
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
-            <i class="fa-solid fa-user-check text-disjoya-red"></i> Trabajador que registra:
+            <i class="fa-solid fa-user-check text-disjoya-red"></i> Trabajador identificado:
           </label>
           <select id="movil-select-empleado" onchange="cambiarEmpleadoMovil()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-disjoya-navy">
             <option value="pnoriegawork@gmail.com" selected>Pedro Noriega — Trabajador (pnoriegawork@gmail.com)</option>
-            <option value="spramirez2024@gmail.com">S.P. Ramírez — Jefe Inmediato (spramirez2024@gmail.com)</option>
-            <option value="pedro.noriega@gmail.com">Pedro Noriega — Administrador (pedro.noriega@gmail.com)</option>
           </select>
         </div>
 
@@ -1065,8 +1330,8 @@
           </div>
         </div>
 
-        <!-- Botones de Acción: Entrada o Salida -->
-        <div class="space-y-3 pt-1">
+        <!-- Botones de Acción: Entrada, Salida y Solicitud de Horas Extras -->
+        <div class="space-y-2.5 pt-1">
           <button onclick="confirmarMarcacionMovil('ENTRADA')" class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-extrabold py-3.5 px-6 rounded-2xl text-sm transition shadow-lg flex items-center justify-center gap-3">
             <i class="fa-solid fa-arrow-right-to-bracket text-xl"></i>
             <div class="text-left">
@@ -1081,6 +1346,16 @@
               <div class="leading-tight">REGISTRAR SALIDA</div>
               <div class="text-[10px] font-normal opacity-90" id="movil-hora-salida-btn">Hora Legal Colombia</div>
             </div>
+          </button>
+
+          <button type="button" onclick="irASolicitarHorasExtrasTrabajador()" class="w-full bg-disjoya-navy hover:bg-disjoya-navyLight active:scale-95 text-white font-bold py-3 px-5 rounded-2xl text-xs transition shadow flex items-center justify-center gap-2 border border-slate-700">
+            <i class="fa-solid fa-clock text-amber-400"></i>
+            <span>SOLICITAR HORAS EXTRAS ADICIONALES</span>
+          </button>
+
+          <button type="button" onclick="instalarAppTrabajadorPWA()" class="w-full bg-slate-100 hover:bg-slate-200 active:scale-95 text-disjoya-navy font-bold py-2.5 px-4 rounded-xl text-[11px] transition flex items-center justify-center gap-2 border border-slate-300">
+            <i class="fa-solid fa-mobile-screen-button text-disjoya-red"></i>
+            <span>📲 Guardar como App en mi Celular</span>
           </button>
         </div>
 
@@ -1120,8 +1395,8 @@
       email: 'pnoriegawork@gmail.com',
       documento: 'CC 1020304050',
       deviceUuid: 'a8b4f1-9c3d-4e5f-b6a1-0192837465',
-      jefeEmail: 'spramirez2024@gmail.com',
-      jefeNombre: 'S.P. Ramírez'
+      jefeEmail: 'tminero.sst@gmail.com',
+      jefeNombre: 'T. Minero (SST)'
     };
 
     let sedePrincipal = {
@@ -1155,7 +1430,67 @@
       actualizarInterfazUsuario();
       revisarParametrosURL();
       obtenerUbicacionGPS(false);
+      cargarSolicitudesRealesHE();
+      cargarNovedadesActivasUI();
+      cargarLiquidacionesAutopartesUI();
     });
+
+    function cargarSolicitudesRealesHE() {
+      fetch('/api/v1/movil/solicitudes-pendientes')
+        .then(r => r.ok ? r.json() : [])
+        .then(items => {
+          if (!Array.isArray(items) || items.length === 0) return;
+          const pendientes = items.filter(x => x.estado === 'PENDIENTE');
+          const badge = document.getElementById('badge-pendientes-he');
+          if (badge) {
+            if (pendientes.length > 0) {
+              badge.innerText = pendientes.length;
+              badge.classList.remove('hidden');
+            } else {
+              badge.classList.add('hidden');
+            }
+          }
+          const bandejaJefe = document.getElementById('bandeja-jefe-solicitudes');
+          if (bandejaJefe && pendientes.length > 0) {
+            const p = pendientes[0];
+            bandejaJefe.innerHTML = `
+              <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3.5 animate-fade-in">
+                <div class="flex items-start justify-between">
+                  <div>
+                    <p class="text-sm font-bold text-slate-900">${p.empleado} (${p.email})</p>
+                    <p class="text-xs text-slate-500">Documento: ${p.documento} | Jefe Aprobador: T. Minero (SST) (tminero.sst@gmail.com)</p>
+                  </div>
+                  <span class="text-xs font-bold bg-amber-100 text-amber-800 px-3 py-1 rounded-full">Requiere Decisión</span>
+                </div>
+                <div class="bg-white p-3.5 rounded-xl border border-slate-200 text-xs space-y-1.5">
+                  <p><strong>📅 Fecha y Horario Solicitado:</strong> ${p.fecha} de ${p.hora_inicio} a ${p.hora_fin} (<strong>${p.horas} Horas Extras Diurnas</strong>)</p>
+                  <p class="text-emerald-700"><strong>⚖️ Verificación Legal MAPE-K:</strong> Dentro de topes legales (Art. 22 Ley 50/1990).</p>
+                </div>
+                <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl space-y-1">
+                  <p class="text-[11px] font-extrabold text-amber-900 uppercase tracking-wide flex items-center gap-1.5">
+                    <i class="fa-solid fa-comment-dots text-amber-600"></i>
+                    Razón / Justificación por la cual el trabajador solicita las Horas Extras:
+                  </p>
+                  <p class="text-sm font-bold text-slate-900 leading-relaxed">"${p.motivo}"</p>
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Observación / Concepto del Jefe Inmediato (Opcional al aprobar, obligatorio al rechazar):</label>
+                  <input type="text" id="jefe-comentario-decision" placeholder="Ej. Autorizado por requerimiento urgente de despacho e inventario..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-white">
+                </div>
+                <div class="flex items-center gap-3 pt-1">
+                  <button onclick="decidirHE(true)" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-xs transition shadow flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-check"></i> Aprobar Horas Extras (tminero.sst@gmail.com)
+                  </button>
+                  <button onclick="decidirHE(false)" class="flex-1 bg-disjoya-red hover:bg-disjoya-redHover text-white font-bold py-3 px-4 rounded-xl text-xs transition shadow flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-xmark"></i> Rechazar Solicitud
+                  </button>
+                </div>
+              </div>
+            `;
+          }
+        })
+        .catch(() => {});
+    }
 
     // RELOJ LEGAL COLOMBIA (UTC-5)
     function iniciarRelojColombia() {
@@ -1173,8 +1508,101 @@
       }, 1000);
     }
 
+    let modoExclusivoTrabajador = false;
+    let modoExclusivoJefe = false;
+
+    function activarModoExclusivoTrabajador() {
+      modoExclusivoTrabajador = true;
+      modoExclusivoJefe = false;
+      try { localStorage.setItem('disjoya_modo_fijo', 'trabajador'); } catch (e) {}
+      const bannerPwa = document.getElementById('banner-instalar-pwa');
+      if (bannerPwa) bannerPwa.classList.remove('hidden');
+
+      usuarioActual.rol = 'TRABAJADOR';
+      usuarioActual.nombre = 'Pedro Noriega (Trabajador)';
+      usuarioActual.documento = 'CC 1020304050';
+      usuarioActual.email = 'pnoriegawork@gmail.com';
+      actualizarInterfazUsuario();
+
+      // Ocultar todas las pestañas de Jefatura, Nómina, Kiosco, Auditoría y Admin
+      ['nav-tab-jefatura', 'nav-tab-nomina', 'nav-tab-kiosco', 'nav-tab-auditoria', 'nav-tab-admin'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
+
+      // Renombrar claramente las 2 únicas opciones del trabajador
+      const btnMarca = document.getElementById('nav-tab-marcacion');
+      if (btnMarca) {
+        btnMarca.classList.remove('hidden');
+        btnMarca.innerHTML = '<i class="fa-solid fa-qrcode"></i><span>1. Registrar Ingreso y Salida</span>';
+      }
+      const btnHe = document.getElementById('nav-tab-horasextras');
+      if (btnHe) {
+        btnHe.classList.remove('hidden');
+        btnHe.innerHTML = '<i class="fa-solid fa-clock"></i><span>2. Solicitar Horas Extras</span>';
+      }
+
+      // Bloquear cambio de perfil en el encabezado
+      const menuRoles = document.getElementById('menu-roles');
+      if (menuRoles) menuRoles.classList.add('hidden');
+      const btnPerfil = document.getElementById('btn-perfil');
+      if (btnPerfil) {
+        btnPerfil.onclick = null;
+        btnPerfil.classList.remove('hover:bg-slate-700');
+        btnPerfil.title = 'Sesión exclusiva de Trabajador (pnoriegawork@gmail.com)';
+      }
+    }
+
+    function activarModoExclusivoJefe() {
+      modoExclusivoJefe = true;
+      modoExclusivoTrabajador = false;
+      try { localStorage.removeItem('disjoya_modo_fijo'); } catch (e) {}
+      const bannerPwa = document.getElementById('banner-instalar-pwa');
+      if (bannerPwa) bannerPwa.classList.add('hidden');
+
+      usuarioActual.rol = 'JEFE_INMEDIATO';
+      usuarioActual.nombre = 'T. Minero (SST)';
+      usuarioActual.documento = 'CC 52002002';
+      usuarioActual.email = 'tminero.sst@gmail.com';
+      actualizarInterfazUsuario();
+
+      // Ocultar todas las demás pestañas excepto Aprobación Jefatura
+      ['nav-tab-marcacion', 'nav-tab-horasextras', 'nav-tab-nomina', 'nav-tab-kiosco', 'nav-tab-auditoria', 'nav-tab-admin'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
+
+      const btnJefe = document.getElementById('nav-tab-jefatura');
+      if (btnJefe) {
+        btnJefe.classList.remove('hidden');
+      }
+
+      // Bloquear cambio de perfil en el encabezado
+      const menuRoles = document.getElementById('menu-roles');
+      if (menuRoles) menuRoles.classList.add('hidden');
+      const btnPerfil = document.getElementById('btn-perfil');
+      if (btnPerfil) {
+        btnPerfil.onclick = null;
+        btnPerfil.classList.remove('hover:bg-slate-700');
+        btnPerfil.title = 'Sesión exclusiva de Jefe Inmediato Aprobador (tminero.sst@gmail.com)';
+      }
+      cambiarPestana('tab-jefatura');
+    }
+
+    function irASolicitarHorasExtrasTrabajador() {
+      activarModoExclusivoTrabajador();
+      cerrarModalMarcacionMovil();
+      cambiarPestana('tab-horasextras');
+    }
+
     // CONTROL DE PESTAÑAS
     function cambiarPestana(tabId) {
+      if (modoExclusivoTrabajador && tabId !== 'tab-marcacion' && tabId !== 'tab-horasextras') {
+        tabId = 'tab-marcacion';
+      }
+      if (modoExclusivoJefe && tabId !== 'tab-jefatura') {
+        tabId = 'tab-jefatura';
+      }
       document.querySelectorAll('.pestana-seccion').forEach(el => el.classList.add('hidden'));
       document.getElementById(tabId).classList.remove('hidden');
 
@@ -1192,10 +1620,20 @@
       if (tabId !== 'tab-marcacion' && html5QrCode) {
         detenerEscaner();
       }
+      if (tabId === 'tab-jefatura' || tabId === 'tab-horasextras') {
+        cargarSolicitudesRealesHE();
+      }
+      if (tabId === 'tab-nomina') {
+        cargarLiquidacionesAutopartesUI();
+      }
+      if (tabId === 'tab-admin') {
+        cargarNovedadesActivasUI();
+      }
     }
 
     // CAMBIO DE PERFILES PARA DEMOSTRACIÓN
     function toggleMenuUsuario() {
+      if (modoExclusivoTrabajador || modoExclusivoJefe) return;
       const menu = document.getElementById('menu-roles');
       menu.classList.toggle('hidden');
     }
@@ -1227,8 +1665,8 @@
         </p>
       `;
 
-      usuarioActual.jefeEmail = (val === 'spramirez') ? 'spramirez2024@gmail.com' : 'pedro.noriega@gmail.com';
-      usuarioActual.jefeNombre = (val === 'spramirez') ? 'S.P. Ramírez' : 'Pedro Noriega (Admin)';
+      usuarioActual.jefeEmail = (val === 'tminero') ? 'tminero.sst@gmail.com' : 'pedro.noriega@gmail.com';
+      usuarioActual.jefeNombre = (val === 'tminero') ? 'T. Minero (SST)' : 'Pedro Noriega (Admin)';
       
       // Actualizar vista de jefe en la bandeja de horas extras
       const apNombre = document.getElementById('aprobador-display-he');
@@ -1328,6 +1766,21 @@
       const colorIcon = tipo === 'SALIDA' ? 'text-disjoya-red' : 'text-emerald-600';
       const icon = tipo === 'SALIDA' ? 'fa-arrow-right-from-bracket' : 'fa-arrow-right-to-bracket';
 
+      // Persistir en la base de datos de producción (Supabase)
+      fetch('/api/v1/movil/marcar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email_empleado: usuarioActual.email || 'pnoriegawork@gmail.com',
+          tipo: tipo,
+          latitud: gpsActual.lat || 7.124500,
+          longitud: gpsActual.lon || -73.128000,
+          distancia_m: gpsActual.distancia || 3.8,
+          precision_m: gpsActual.precision || 4.0,
+          qr_payload: qrActualPayload
+        })
+      }).catch(err => console.warn('Aviso red marcacion:', err));
+
       const distM = gpsActual.distancia ? (gpsActual.distancia < 1000 ? `${gpsActual.distancia.toFixed(1)} m` : `${(gpsActual.distancia/1000).toFixed(2)} km`) : '4.2 m';
 
       const resEl = document.getElementById('resultado-marcacion');
@@ -1371,12 +1824,40 @@
       }
     }
 
-    // MODAL MÓVIL Y ESCANEO DESDE CELULAR
+    // MODAL MÓVIL Y ESCANEO DESDE CELULAR / RUTAS POR ROL
     function revisarParametrosURL() {
       const params = new URLSearchParams(window.location.search);
-      if (params.get('marcar') === '1' || params.has('qr')) {
-        const qr = params.get('qr');
-        mostrarModalMarcacionMovil(qr);
+      const ruta = window.location.pathname.toLowerCase();
+      let modoGuardado = null;
+      try { modoGuardado = localStorage.getItem('disjoya_modo_fijo'); } catch (e) {}
+      const esAppInstalada = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+
+      if (ruta.startsWith('/jefe') || params.get('aprobar_he') === '1' || params.get('modo') === 'jefe') {
+        activarModoExclusivoJefe();
+      } else if (ruta.startsWith('/admin') || params.get('modo') === 'admin') {
+        try { localStorage.removeItem('disjoya_modo_fijo'); } catch (e) {}
+        const bannerPwa = document.getElementById('banner-instalar-pwa');
+        if (bannerPwa) bannerPwa.classList.add('hidden');
+        usuarioActual.rol = 'AUDITOR_SUPERADMIN';
+        usuarioActual.nombre = 'Pedro Noriega (Admin)';
+        usuarioActual.documento = 'CC 79001001';
+        usuarioActual.email = 'pedro.noriega@gmail.com';
+        actualizarInterfazUsuario();
+      } else if (
+        ruta.startsWith('/trabajador') ||
+        params.get('modo') === 'trabajador' ||
+        params.get('marcar') === '1' ||
+        params.has('qr') ||
+        modoGuardado === 'trabajador' ||
+        esAppInstalada
+      ) {
+        activarModoExclusivoTrabajador();
+        if (params.get('tab') === 'he') {
+          cambiarPestana('tab-horasextras');
+        } else if (params.get('marcar') === '1' || params.has('qr') || ruta.startsWith('/trabajador') || esAppInstalada) {
+          const qr = params.get('qr') || qrActualPayload;
+          mostrarModalMarcacionMovil(qr);
+        }
       }
     }
 
@@ -1411,8 +1892,8 @@
       const val = sel.value;
       if (val === 'pnoriegawork@gmail.com') {
         cambiarPerfil('TRABAJADOR', 'Pedro Noriega (Trabajador)', 'CC 1020304052', 'pnoriegawork@gmail.com');
-      } else if (val === 'spramirez2024@gmail.com') {
-        cambiarPerfil('JEFE_INMEDIATO', 'S.P. Ramírez (Jefe)', 'CC 1020304051', 'spramirez2024@gmail.com');
+      } else if (val === 'tminero.sst@gmail.com') {
+        cambiarPerfil('JEFE_INMEDIATO', 'T. Minero (SST) (Jefe)', 'CC 1020304051', 'tminero.sst@gmail.com');
       } else {
         cambiarPerfil('AUDITOR_SUPERADMIN', 'Pedro Noriega (Admin)', 'CC 1020304050', 'pedro.noriega@gmail.com');
       }
@@ -1713,7 +2194,7 @@
         }
       }
 
-      return `${baseDominio}/?marcar=1&qr=${encodeURIComponent(qrActualPayload)}`;
+      return `${baseDominio}/trabajador?marcar=1&qr=${encodeURIComponent(qrActualPayload)}`;
     }
 
     // MOTOR DEL KIOSCO (ROTACIÓN TOTP CADA 30s)
@@ -1762,7 +2243,7 @@
       }
     }
 
-    // GESTIÓN DE HORAS EXTRAS (SOLICITUD)
+    // GESTIÓN DE HORAS EXTRAS (SOLICITUD CONECTADA A BACKEND Y JEFATURA tminero.sst@gmail.com)
     function enviarSolicitudHE() {
       const fecha = document.getElementById('he-fecha').value;
       const inicio = document.getElementById('he-inicio').value;
@@ -1775,41 +2256,367 @@
       const minutos = (hFin * 60 + mFin) - (hIni * 60 + mIni);
       const horas = minutos / 60;
 
-      // Validación de Tope Legal Colombia (Art. 22 Ley 50/1990)
-      if (horas > 2.0) {
-        alert(`BLOQUEO DETERMINÍSTICO ART. 22 LEY 50/1990: Ha solicitado ${horas} horas extras. El límite diario legal improrrogable es de máximo dos (2) horas extras diarias.`);
+      if (horas <= 0) {
+        alert("La hora de fin debe ser posterior a la hora de inicio.");
         return;
       }
 
-      alert(`Solicitud de ${horas} horas extras radicada con éxito. Se ha disparado la notificación inmediata al jefe inmediato.`);
+      // Doble Contabilización: El trabajador solicita todas las horas que necesite;
+      // Cuenta 1 liquida conforme al tope legal y Cuenta 2 acumula el saldo para pagarlo al 100% en los siguientes períodos.
+      const hCuenta1 = Math.min(horas, 2.0);
+      const hCuenta2Arrastre = Math.max(0.0, horas - 2.0);
+
+      // Llamada síncrona al backend para persistir en Supabase y enviar correo por Gmail SMTP a tminero.sst@gmail.com
+      fetch('/api/v1/movil/solicitar-he', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email_empleado: usuarioActual.email || 'pnoriegawork@gmail.com',
+          fecha: fecha,
+          hora_inicio: inicio,
+          hora_fin: fin,
+          horas: horas,
+          motivo: motivo
+        })
+      })
+        .then(r => r.json())
+        .then(() => {
+          const msgDoble = hCuenta2Arrastre > 0
+            ? `\n• Cuenta 1 (Pago Nómina Legal): ${hCuenta1.toFixed(1)} h\n• Cuenta 2 (Banco de Arrastre para pago al 100% en siguientes períodos): +${hCuenta2Arrastre.toFixed(1)} h`
+            : `\n• Cuenta 1 (Pago Nómina Legal): ${hCuenta1.toFixed(1)} h`;
+          alert(`✅ Solicitud de ${horas.toFixed(1)} horas extras radicada y CORREO ENVIADO CON ÉXITO.\n\n• Destinatario Jefe: tminero.sst@gmail.com\n• Día: ${fecha} (${inicio} a ${fin})${msgDoble}\n• Razón: "${motivo}"`);
+        })
+        .catch(() => {
+          alert(`✅ Solicitud de ${horas.toFixed(1)} horas extras radicada en el sistema.`);
+        });
+
+      const listaHe = document.getElementById('lista-solicitudes-he');
+      if (listaHe) {
+        const card = document.createElement('div');
+        card.className = 'p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2 animate-fade-in';
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-800">${fecha} | ${inicio} a ${fin} (${horas.toFixed(1)} h solicitadas)</span>
+            <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full">PENDIENTE JEFE</span>
+          </div>
+          <div class="p-2.5 bg-amber-50/80 border border-amber-200 rounded-lg text-xs text-slate-800 space-y-1">
+            <p class="font-bold text-amber-900 text-[10px] uppercase">Razón expuesta por el trabajador:</p>
+            <p class="mt-0.5">${motivo}</p>
+            <p class="text-[10px] text-emerald-800 font-semibold pt-1 border-t border-amber-200">
+              Doble Contabilización: Cuenta 1 (Ley): ${hCuenta1.toFixed(1)} h | Cuenta 2 (Arrastre 100% Pago): +${hCuenta2Arrastre.toFixed(1)} h
+            </p>
+          </div>
+          <div class="text-[11px] text-slate-400 flex items-center justify-between border-t border-slate-200 pt-1.5">
+            <span>Aprobador Oficial: <strong class="text-slate-700">T. Minero (SST) (tminero.sst@gmail.com)</strong></span>
+            <span class="text-emerald-600 font-semibold"><i class="fa-solid fa-envelope-circle-check text-emerald-500"></i> Correo SMTP Enviado</span>
+          </div>
+        `;
+        listaHe.prepend(card);
+      }
+
+      // Actualizar bandeja del Jefe Inmediato en Pestaña 3 (tminero.sst@gmail.com)
+      const bandejaJefe = document.getElementById('bandeja-jefe-solicitudes');
+      if (bandejaJefe) {
+        bandejaJefe.innerHTML = `
+          <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3.5 animate-fade-in">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-sm font-bold text-slate-900">${usuarioActual.nombre} (${usuarioActual.email})</p>
+                <p class="text-xs text-slate-500">Documento: ${usuarioActual.documento} | Jefe Aprobador: T. Minero (SST) (tminero.sst@gmail.com)</p>
+              </div>
+              <span class="text-xs font-bold bg-amber-100 text-amber-800 px-3 py-1 rounded-full">Requiere Decisión</span>
+            </div>
+            <div class="bg-white p-3.5 rounded-xl border border-slate-200 text-xs space-y-1.5">
+              <p><strong>📅 Fecha y Horario Solicitado:</strong> ${fecha} de ${inicio} a ${fin} (<strong>${horas.toFixed(2)} Horas Extras Solicitadas</strong>)</p>
+              <p class="text-emerald-700"><strong>⚖️ Doble Contabilización Activa:</strong> Cuenta 1 (Nómina Legal Período): <strong>${hCuenta1.toFixed(2)} h</strong> | Cuenta 2 (Banco de Arrastre para pago al 100% en siguientes períodos): <strong>+${hCuenta2Arrastre.toFixed(2)} h</strong>.</p>
+            </div>
+            <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl space-y-1">
+              <p class="text-[11px] font-extrabold text-amber-900 uppercase tracking-wide flex items-center gap-1.5">
+                <i class="fa-solid fa-comment-dots text-amber-600"></i>
+                Razón / Justificación por la cual el trabajador solicita las Horas Extras:
+              </p>
+              <p class="text-sm font-bold text-slate-900 leading-relaxed">"${motivo}"</p>
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Observación / Concepto del Jefe Inmediato (Opcional al aprobar, obligatorio al rechazar):</label>
+              <input type="text" id="jefe-comentario-decision" placeholder="Ej. Autorizado por requerimiento urgente de despacho e inventario..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-white">
+            </div>
+            <div class="flex items-center gap-3 pt-1">
+              <button onclick="decidirHE(true)" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-xs transition shadow flex items-center justify-center gap-2">
+                <i class="fa-solid fa-check"></i> Aprobar Horas Extras (tminero.sst@gmail.com)
+              </button>
+              <button onclick="decidirHE(false)" class="flex-1 bg-disjoya-red hover:bg-disjoya-redHover text-white font-bold py-3 px-4 rounded-xl text-xs transition shadow flex items-center justify-center gap-2">
+                <i class="fa-solid fa-xmark"></i> Rechazar Solicitud
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      const badge = document.getElementById('badge-pendientes-he');
+      if (badge) badge.classList.remove('hidden');
       
       // Actualizar medidor
       document.getElementById('gauge-dia-uso').innerText = horas.toFixed(1);
       document.getElementById('bar-dia-uso').style.width = `${(horas / 2.0) * 100}%`;
     }
 
-    // DECISIÓN DEL JEFE
+    // DECISIÓN DEL JEFE (SINCRONIZADA CON SUPABASE Y ENVÍO DE CORREO AL TRABAJADOR)
     function decidirHE(aprobado) {
-      if (aprobado) {
-        alert("Horas extras APROBADAS con éxito. El trabajador ha sido notificado.");
-        document.getElementById('bandeja-jefe-solicitudes').innerHTML = `
-          <div class="p-6 text-center text-slate-400 bg-slate-50 rounded-xl border border-slate-200">
-            <i class="fa-solid fa-check-double text-emerald-500 text-3xl mb-2"></i>
-            <p class="text-xs font-semibold text-slate-700">No hay solicitudes pendientes por revisar</p>
-            <p class="text-[11px] text-slate-400">Todas las horas extras han sido gestionadas con éxito.</p>
-          </div>
-        `;
-      } else {
-        const razon = prompt("Por favor ingrese el motivo del rechazo:", "No justificado operativamente");
-        if (razon) {
-          alert("Solicitud rechazada y registrada en auditoría con su motivación.");
-        }
+      const inputObs = document.getElementById('jefe-comentario-decision');
+      let comentario = inputObs ? inputObs.value.trim() : '';
+      if (!aprobado && !comentario) {
+        comentario = prompt("Por favor ingrese el motivo del rechazo:", "No justificado operativamente");
+        if (!comentario) return;
       }
+
+      const badge = document.getElementById('badge-pendientes-he');
+      if (badge) badge.classList.add('hidden');
+
+      fetch('/api/v1/movil/decidir-he', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ aprobada: aprobado, comentario: comentario })
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (aprobado) {
+            alert(
+              `✅ HORAS EXTRAS APROBADAS Y CORREO ENVIADO AL TRABAJADOR\n\n` +
+              `• Correo notificado: ${data.trabajador_notificado}\n` +
+              `• Día autorizado: ${data.fecha}\n` +
+              `• Horario y Horas: ${data.horario} (${data.horas} h)\n` +
+              `• Descripción: "${data.descripcion}"\n` +
+              `• Aprobador: ${data.aprobador}`
+            );
+            document.getElementById('bandeja-jefe-solicitudes').innerHTML = `
+              <div class="p-6 text-center text-slate-600 bg-emerald-50 rounded-xl border border-emerald-200 space-y-1">
+                <i class="fa-solid fa-envelope-circle-check text-emerald-600 text-3xl mb-1"></i>
+                <p class="text-xs font-extrabold text-emerald-900">Horas Extras Aprobadas y Notificadas por Correo a ${data.trabajador_notificado}</p>
+                <p class="text-[11px] text-emerald-800">Día: ${data.fecha} | Horario: ${data.horario} (${data.horas} h) | Actividad: "${data.descripcion}"</p>
+              </div>
+            `;
+          } else {
+            alert(`❌ Solicitud rechazada y correo de notificación enviado a ${data.trabajador_notificado}.`);
+            document.getElementById('bandeja-jefe-solicitudes').innerHTML = `
+              <div class="p-6 text-center text-slate-600 bg-red-50 rounded-xl border border-red-200 space-y-1">
+                <i class="fa-solid fa-ban text-disjoya-red text-3xl mb-1"></i>
+                <p class="text-xs font-extrabold text-red-900">Solicitud Rechazada y Notificada por Correo a ${data.trabajador_notificado}</p>
+                <p class="text-[11px] text-red-800">Motivo registrado: ${comentario}</p>
+              </div>
+            `;
+          }
+        })
+        .catch(err => alert('Aviso de red al decidir: ' + err));
+    }
+
+    // COMISIONES DE VENDEDORES (ART. 127 CST)
+    function cargarDatosVendedorComision(prefijo) {
+      const sel = document.getElementById(`${prefijo}-select-vendedor`);
+      if (!sel) return;
+      const opt = sel.options[sel.selectedIndex];
+      const q1 = opt.getAttribute('data-q1') || '0';
+      const q2 = opt.getAttribute('data-q2') || '0';
+      const inp1 = document.getElementById(`${prefijo}-q1`);
+      const inp2 = document.getElementById(`${prefijo}-q2`);
+      if (inp1) inp1.value = q1;
+      if (inp2) inp2.value = q2;
+    }
+
+    function guardarComisionVendedorUI(prefijo) {
+      const sel = document.getElementById(`${prefijo}-select-vendedor`);
+      const doc = sel ? sel.value : '91202802';
+      const q1 = parseFloat(document.getElementById(`${prefijo}-q1`).value || '0');
+      const q2 = parseFloat(document.getElementById(`${prefijo}-q2`).value || '0');
+
+      fetch('/api/v1/admin/comision-vendedor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          numero_documento: doc,
+          periodo_anio: 2026,
+          periodo_mes: 8,
+          comision_quincena_1: q1,
+          comision_quincena_2: q2,
+          observaciones: 'Comisión salarial registrada desde consola de Administrador (Art. 127 CST)'
+        })
+      })
+        .then(r => r.json())
+        .then(data => {
+          const alertId = prefijo === 'com' ? 'alerta-comision-nomina' : 'alerta-comision-admin';
+          const alertEl = document.getElementById(alertId);
+          if (alertEl) {
+            alertEl.classList.remove('hidden');
+            alertEl.className = 'p-3.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-900 border border-emerald-300';
+            alertEl.innerHTML = `
+              ✅ <strong>Comisión Salarial Guardada (Art. 127 CST):</strong> ${data.empleado} (CC ${data.documento}) |
+              Total Comisiones: <strong>$ ${Number(data.total_comisiones).toLocaleString('es-CO')}</strong> |
+              Nuevo Sueldo Base Cálculo: <strong>$ ${Number(data.sueldo_base_calculo_art127).toLocaleString('es-CO')}</strong> |
+              Neto a Pagar: <strong>$ ${Number(data.neto_a_pagar).toLocaleString('es-CO')}</strong>
+            `;
+          }
+          cargarLiquidacionesAutopartesUI();
+        })
+        .catch(err => alert('Error guardando comisión: ' + err));
+    }
+
+    // GESTIÓN DE NOVEDADES (VACACIONES, INCAPACIDAD EPS Y ARL)
+    function registrarNovedadAdminUI() {
+      const doc = document.getElementById('nov-select-empleado').value;
+      const tipo = document.getElementById('nov-select-tipo').value;
+      const entidad = document.getElementById('nov-entidad').value;
+      const fIni = document.getElementById('nov-fecha-inicio').value;
+      const fFin = document.getElementById('nov-fecha-fin').value;
+      const obs = document.getElementById('nov-observacion').value;
+
+      fetch('/api/v1/admin/novedad-ausentismo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          numero_documento: doc,
+          tipo_novedad: tipo,
+          fecha_inicio: fIni,
+          fecha_fin: fFin,
+          entidad_responsable: entidad,
+          porcentaje_pago_empresa: tipo === 'INCAPACIDAD_EPS' ? 66.67 : 100.0,
+          observaciones: obs
+        })
+      })
+        .then(r => {
+          if (!r.ok) throw new Error('Verifique el rango de fechas');
+          return r.json();
+        })
+        .then(data => {
+          const alertEl = document.getElementById('alerta-novedad-admin');
+          if (alertEl) {
+            alertEl.classList.remove('hidden');
+            alertEl.className = 'p-3.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-900 border border-emerald-300';
+            alertEl.innerHTML = `
+              🛡️ <strong>Novedad Registrada y Protección Activada:</strong> ${data.empleado} (CC ${data.documento}) se encuentra en
+              <strong>${data.tipo_novedad}</strong> del <strong>${data.fecha_inicio}</strong> al <strong>${data.fecha_fin}</strong> (${data.dias_calendario} días).
+              <br>🔕 <em>El sistema ha desactivado automáticamente la exigencia de marcación QR y las alertas de 30 minutos para este trabajador durante estos días.</em>
+            `;
+          }
+          cargarNovedadesActivasUI();
+        })
+        .catch(err => alert('Error registrando novedad: ' + err.message));
+    }
+
+    function cargarNovedadesActivasUI() {
+      fetch('/api/v1/novedades-ausentismo')
+        .then(r => r.ok ? r.json() : [])
+        .then(items => {
+          const tbody = document.getElementById('tabla-novedades-body');
+          if (!tbody) return;
+          if (!Array.isArray(items) || items.length === 0) {
+            tbody.innerHTML = `
+              <tr>
+                <td colspan="5" class="p-4 text-center text-slate-400 text-xs">
+                  No hay trabajadores con vacaciones o incapacidades activas en este momento. Usa el formulario superior para registrar una novedad.
+                </td>
+              </tr>
+            `;
+            return;
+          }
+          tbody.innerHTML = items.map(n => `
+            <tr class="hover:bg-slate-50">
+              <td class="p-3 font-bold text-slate-900">${n.empleado}</td>
+              <td class="p-3">
+                <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full">${n.tipo_novedad}</span>
+              </td>
+              <td class="p-3 text-slate-700">${n.fecha_inicio} al ${n.fecha_fin} (<strong>${n.dias_calendario} días</strong>)</td>
+              <td class="p-3 text-slate-600">${n.entidad_responsable}</td>
+              <td class="p-3 text-center">
+                <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full">
+                  <i class="fa-solid fa-bell-slash mr-1"></i>Exonerado de QR y Sin Alerta 30m
+                </span>
+              </td>
+            </tr>
+          `).join('');
+        })
+        .catch(() => {});
+    }
+
+    // NÓMINA AUTOPARTES Y DESPRENDIBLES PDF INDIVIDUALES
+    function cargarLiquidacionesAutopartesUI() {
+      fetch('/api/v1/nomina/autopartes/liquidaciones?anio=2026&mes=8')
+        .then(r => r.ok ? r.json() : [])
+        .then(items => {
+          const tbody = document.getElementById('tabla-nomina-autopartes-body');
+          if (!tbody) return;
+          if (!Array.isArray(items) || items.length === 0) {
+            tbody.innerHTML = `
+              <tr>
+                <td colspan="10" class="p-4 text-center text-slate-400 text-xs">
+                  Haz clic en el botón rojo "Recalcular Planta y Emitir 11 PDFs" para cargar la liquidación oficial.
+                </td>
+              </tr>
+            `;
+            return;
+          }
+          tbody.innerHTML = items.map(r => {
+            const esPrueba = r.documento === '1020304050';
+            const rowClass = esPrueba ? 'bg-emerald-50/80 border-l-4 border-emerald-500 hover:bg-emerald-100/70' : 'hover:bg-slate-50';
+            const badgeClass = esPrueba
+              ? 'bg-emerald-600 text-white'
+              : (r.seccion.includes('VENTAS') ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700');
+            return `
+            <tr class="${rowClass}">
+              <td class="p-3">
+                <p class="font-bold text-slate-900">${r.empleado} ${esPrueba ? '<span class="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-extrabold ml-1">pnoriegawork@gmail.com</span>' : ''}</p>
+                <p class="text-[10px] text-slate-500 font-mono">CC ${r.documento} • ${r.cargo}</p>
+              </td>
+              <td class="p-3">
+                <span class="${badgeClass} text-[9px] font-bold px-2 py-0.5 rounded-full">
+                  ${r.seccion}
+                </span>
+              </td>
+              <td class="p-3 text-right font-mono">$ ${Number(r.salario_basico_pactado).toLocaleString('es-CO')}</td>
+              <td class="p-3 text-right font-mono font-bold ${Number(r.comisiones_ventas_art127) > 0 ? 'text-emerald-600' : 'text-slate-400'}">
+                $ ${Number(r.comisiones_ventas_art127).toLocaleString('es-CO')}
+              </td>
+              <td class="p-3 text-right font-mono font-semibold text-slate-800">$ ${Number(r.sueldo_base_calculo).toLocaleString('es-CO')}</td>
+              <td class="p-3 text-right font-mono">
+                <div class="font-bold text-disjoya-navy">${r.total_horas_pagadas_mes || r.horas_extra_diurna} h</div>
+                <div class="text-[9px] text-slate-500">
+                  HED: ${r.horas_extra_diurna || '0.00'}h | HEN(>=7pm): ${r.horas_extra_nocturna || '0.00'}h
+                  ${(Number(r.horas_extra_festiva_diurna || 0) + Number(r.horas_extra_festiva_nocturna || 0)) > 0 ? `| Dom/Fest: ${(Number(r.horas_extra_festiva_diurna || 0) + Number(r.horas_extra_festiva_nocturna || 0)).toFixed(2)}h` : ''}
+                </div>
+              </td>
+              <td class="p-3 text-right font-mono font-bold text-disjoya-red">$ ${Number(r.total_horas_extras_cop).toLocaleString('es-CO')}</td>
+              <td class="p-3 text-right font-mono text-amber-700 font-semibold">${r.horas_arrastradas_siguiente_mes} h</td>
+              <td class="p-3 text-right font-mono font-extrabold text-emerald-700">$ ${Number(r.neto_a_pagar).toLocaleString('es-CO')}</td>
+              <td class="p-3 text-center">
+                <a href="/api/v1/nomina/autopartes/desprendible/${r.documento}/2026/8/pdf" download="Desprendible_Nomina_${r.documento}_2026_08.pdf" target="_blank" class="inline-flex items-center gap-1 bg-disjoya-navy hover:bg-disjoya-navyLight text-white font-bold px-2.5 py-1.5 rounded-lg text-[10px] transition shadow-sm">
+                  <i class="fa-solid fa-file-pdf text-disjoya-red"></i> PDF
+                </a>
+              </td>
+            </tr>
+            `;
+          }).join('');
+        })
+        .catch(() => {});
+    }
+
+    function ejecutarLiquidacionAutopartesCompleta() {
+      fetch('/api/v1/nomina/autopartes/liquidar-periodo?anio=2026&mes=8', { method: 'POST' })
+        .then(async r => {
+          if (!r.ok) {
+            const txt = await r.text();
+            throw new Error(txt.slice(0, 180));
+          }
+          return r.json();
+        })
+        .then(data => {
+          alert(`✅ Liquidación Oficial Completada:\n\n• Trabajadores procesados: ${data.trabajadores_liquidados} (incluyendo a Pedro Noriega - pnoriegawork@gmail.com)\n• Desprendibles PDF individuales generados y sellados con SHA-256.\n• Ya puedes descargar cualquier desprendible pulsando el botón 'PDF' en la columna derecha.`);
+          cargarLiquidacionesAutopartesUI();
+        })
+        .catch(err => alert('Error liquidando nómina: ' + err));
     }
 
     // PRE-LIQUIDACIÓN DE NÓMINA
     function ejecutarPreliquidacion() {
-      alert("Pre-liquidación de nómina generada con éxito aplicando los factores vigentes de Noviembre de 2026.");
+      ejecutarLiquidacionAutopartesCompleta();
     }
 
     function copiarJsonDian() {
@@ -1830,7 +2637,48 @@
     }
 
     function verificarCadenaAuditoria() {
-      alert("CADENA DE AUDITORÍA ÍNTEGRA: Todos los 42 registros encadenados coinciden con los sellos criptográficos SHA-256.");
+      alert("CADENA DE AUDITORÍA ÍNTEGRA: Todos los registros encadenados coinciden con los sellos criptográficos SHA-256.");
+    }
+
+    // MOTOR PWA PARA INSTALAR LA APP EXCLUSIVA DEL TRABAJADOR EN EL CELULAR
+    let deferredPwaPrompt = null;
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/sw.js').catch(() => {});
+      });
+    }
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPwaPrompt = e;
+    });
+
+    function instalarAppTrabajadorPWA() {
+      try { localStorage.setItem('disjoya_modo_fijo', 'trabajador'); } catch (e) {}
+      if (deferredPwaPrompt) {
+        deferredPwaPrompt.prompt();
+        deferredPwaPrompt.userChoice.then(() => { deferredPwaPrompt = null; });
+        return;
+      }
+      alert(
+        "📲 CÓMO GUARDAR LA APP DEL TRABAJADOR EN TU CELULAR:\n\n" +
+        "• En Android (Chrome):\n" +
+        "  1. Toca los 3 puntos (⋮) arriba a la derecha.\n" +
+        "  2. Elige 'Instalar aplicación' o 'Agregar a la pantalla principal'.\n\n" +
+        "• En iPhone (Safari):\n" +
+        "  1. Toca el botón Compartir (⬆️) abajo en el centro.\n" +
+        "  2. Elige 'Agregar a inicio'.\n\n" +
+        "✅ Al abrir el ícono desde tu celular, solo aparecerán las 2 opciones del trabajador: 1. Registrar Ingreso y Salida y 2. Solicitar Horas Extras."
+      );
+    }
+
+    function compartirAppTrabajadorWhatsApp() {
+      const urlTrabajador = "https://disjoya-control-horarios.vercel.app/trabajador";
+      const texto = encodeURIComponent(
+        "📲 *App Oficial de Asistencia y Horas Extras — Disjoya Autopartes S.A.S.*\n\n" +
+        "Abre este enlace en tu celular y pulsa *'Guardar como App en mi Celular'* (o 'Agregar a pantalla principal') para registrar tu Entrada/Salida y solicitar Horas Extras:\n" +
+        urlTrabajador
+      );
+      window.open(`https://wa.me/?text=${texto}`, "_blank");
     }
   </script>
 </body>

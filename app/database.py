@@ -25,6 +25,8 @@ _SessionLocal: sessionmaker | None = None
 def configurar_engine(url: str | None = None, **kwargs) -> Engine:
     global _engine, _SessionLocal
     url = url or get_settings().database_url
+    if url.startswith("postgresql") and "connect_args" not in kwargs:
+        kwargs["connect_args"] = {"prepare_threshold": None}
     _engine = create_engine(url, pool_pre_ping=True, future=True, **kwargs)
     if _engine.dialect.name == "postgresql":
 

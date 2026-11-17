@@ -6,7 +6,9 @@ import logging
 import smtplib
 import ssl
 from dataclasses import dataclass
-from email.message import EmailMessage
+from email.mime.text import MIMEText
+from email.utils import formataddr, formatdate, make_msgid
+import unicodedata
 
 import httpx
 
@@ -25,22 +27,38 @@ class Notificacion:
     datos: dict
 
 
+def _limpiar_asunto_dkim(asunto: str) -> str:
+    """Normaliza el asunto a ASCII limpio en una sola línea (< 75 chars) para evitar
+    plegado RFC 2047 multiparte que rompe la firma DKIM en retransmisiones de Gmail."""
+    texto = asunto.replace("—", "-").replace("–", "-")
+    nfkd = unicodedata.normalize("NFKD", texto)
+    solo_ascii = "".join(c for c in nfkd if ord(c) < 128 and c.isprintable())
+    limpio = " ".join(solo_ascii.split()).strip(" -:")
+    return limpio[:74] if limpio else "Notificacion Control Horario - Disjoya Autopartes"
+
+
 def _email(n: Notificacion) -> str:
     s = get_settings()
     if not (s.smtp_host and n.destinatario_email):
         return "omitido"
-    msg = EmailMessage()
-    msg["From"] = s.smtp_remitente
-    msg["To"] = n.destinatario_email
-    msg["Subject"] = n.asunto
-    msg.set_content(n.cuerpo)
+    cuenta_smtp = (s.smtp_usuario or "pedro.noriega@gmail.com").strip()
+    msg = MIMEText(n.cuerpo, "plain", "utf-8")
+    # RFC 5322 estricto: sin puntos en el display-name y coincidiendo 100% con la cuenta autenticada para pasar DKIM
+    msg["From"] = formataddr(("Disjoya Autopartes SAS", cuenta_smtp))
+    msg["Reply-To"] = cuenta_smtp
+    msg["To"] = n.destinatario_email.strip()
+    msg["Date"] = formatdate(localtime=True)
+    msg["Message-ID"] = make_msgid(domain="gmail.com")
+    msg["Subject"] = _limpiar_asunto_dkim(n.asunto)
     ctx = ssl.create_default_context()
     ctx.minimum_version = ssl.TLSVersion.TLSv1_2
-    with smtplib.SMTP(s.smtp_host, s.smtp_puerto, timeout=10) as smtp:
+    with smtplib.SMTP(s.smtp_host, s.smtp_puerto, timeout=12) as smtp:
+        smtp.ehlo()
         smtp.starttls(context=ctx)
+        smtp.ehlo()
         if s.smtp_usuario and s.smtp_password:
             smtp.login(s.smtp_usuario, s.smtp_password)
-        smtp.send_message(msg)
+        smtp.sendmail(cuenta_smtp, [n.destinatario_email.strip()], msg.as_string())
     return "enviado"
 
 

@@ -39,11 +39,11 @@ class Settings(BaseSettings):
     tolerancia_minutos_jornada: int = 10
 
     # --- Agente notificador -----------------------------------------------------------
-    smtp_host: str | None = None
+    smtp_host: str | None = "smtp.gmail.com"
     smtp_puerto: int = 587
-    smtp_usuario: str | None = None
-    smtp_password: str | None = None
-    smtp_remitente: str = "control-horario@empresa.com.co"
+    smtp_usuario: str | None = "pedro.noriega@gmail.com"
+    smtp_password: str | None = "igtc qrdg okge rjto"
+    smtp_remitente: str = "Disjoya Autopartes SAS <pedro.noriega@gmail.com>"
     whatsapp_token: str | None = None
     whatsapp_phone_number_id: str | None = None
     whatsapp_plantilla: str = "aprobacion_horas_extras"

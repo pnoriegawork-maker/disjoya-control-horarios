@@ -47,7 +47,7 @@ Sistema integral de gestión de asistencia, solicitud y aprobación jerárquica 
 | Rol | Correo Electrónico | Contraseña | Función |
 |---|---|---|---|
 | **Superadministrador** | `pedro.noriega@gmail.com` | `Disjoya2026*` | Acceso a auditoría, configuración de sedes y asignación de supervisores |
-| **Jefe Inmediato** | `spramirez2024@gmail.com` | `Disjoya2026*` | Aprobación / rechazo de horas extras solicitadas por trabajadores a su cargo |
+| **Jefe Inmediato** | `tminero.sst@gmail.com` | `Disjoya2026*` | Aprobación / rechazo de horas extras solicitadas por trabajadores a su cargo |
 | **Trabajador Operativo** | `pnoriegawork@gmail.com` | `Disjoya2026*` | Marcación de entrada/salida por QR dinámico y solicitud de horas extras |
 
 ---
