@@ -2,12 +2,30 @@
 ## Sistema de Control de Horarios, Horas Extras y Pre-liquidación — DISJOYA AUTOPARTES S.A.S.
 
 > [!IMPORTANT]
-> **ESTADO DEL PROYECTO: 100% GUARDADO, TESTEADO Y EN PRODUCCIÓN**  
-> Todo el código fuente, la base de datos en la nube (Supabase), el repositorio en GitHub y el despliegue en Vercel están vinculados, sincronizados y probados con éxito. Puedes cerrar la carpeta del proyecto y reanudarlo cuando desees.
+> **ESTADO DEL PROYECTO: 100% GUARDADO, RESPALDADO Y EN PRODUCCIÓN**  
+> Todo el código fuente, la base de datos en la nube (Supabase), el repositorio en GitHub y el despliegue en Vercel están sincronizados. Puedes cerrar la carpeta del proyecto con total tranquilidad.
 
 ---
 
-### 1. Resumen Ejecutivo y Enlaces Oficiales
+### 1. Próximo Paso al Retomar el Proyecto (Pendiente Inmediato)
+
+En la última sesión (17 de noviembre de 2026) se diagnosticó por qué la simulación de solicitud de horas extras no envió notificación ni correo al jefe inmediato (`spramirez2024@gmail.com`). Al retomar el proyecto, ejecutaremos estos **2 pasos**:
+
+1. **Conectar el Formulario Web de Horas Extras con el Backend Real (`static/index.html`):**
+   * Reemplazar la función simulada `enviarSolicitudHE()` en `static/index.html` (líneas 1766-1789) para que realice la petición HTTP real `POST /api/v1/horas-extras/solicitudes` hacia el backend.
+   * Conectar la **Pestaña 3 ("Aprobación Jefatura")** con `GET /api/v1/horas-extras/solicitudes` y `POST /api/v1/horas-extras/solicitudes/{id}/decision` para que las solicitudes aparezcan en tiempo real en la bandeja del jefe (`S.P. Ramírez`).
+2. **Habilitar el Envío Real de Correos Electrónicos (SMTP) en `app/notificador.py` y `app/config.py`:**
+   * Configurar las variables de entorno de correo saliente en `.env` y en Vercel:
+     * `DJY_SMTP_HOST` (ej. `smtp.gmail.com`)
+     * `DJY_SMTP_PUERTO` (`587`)
+     * `DJY_SMTP_USUARIO` (cuenta remitente)
+     * `DJY_SMTP_PASSWORD` (Contraseña de Aplicación de Google de 16 caracteres)
+     * `DJY_SMTP_REMITENTE`
+   * Con esto, el módulo `app/notificador.py` pasará de estado `"omitido"` a `"enviado"`, entregando el correo directamente a la bandeja de entrada del jefe aprobador.
+
+---
+
+### 2. Enlaces Oficiales y Despliegue Activo
 
 * 🌐 **Producción en la Nube (Vercel):**  
   👉 **[https://disjoya-control-horarios.vercel.app](https://disjoya-control-horarios.vercel.app)**
@@ -18,7 +36,7 @@
 
 ---
 
-### 2. Sede Oficial y Geocerca Institucional (Bucaramanga)
+### 3. Sede Oficial y Geocerca Institucional (Bucaramanga)
 
 * **Razón Social:** Disjoya Autopartes S.A.S.
 * **Dirección Oficial:** `Cl. 23 #13-32, Comuna 4 Occidental, Bucaramanga, Santander`
@@ -34,7 +52,7 @@
 
 ---
 
-### 3. Flujo Operativo de Marcación Móvil (Código QR Dinámico)
+### 4. Flujo Operativo de Marcación Móvil (Código QR Dinámico)
 
 1. **Visualización en Kiosco (Pestaña 5):**  
    La pantalla central proyecta el código QR TOTP institucional que rota automáticamente cada 30 segundos.
@@ -50,7 +68,7 @@
 
 ---
 
-### 4. Cuentas y Accesos Configurados
+### 5. Cuentas y Accesos Configurados
 
 Todos los perfiles utilizan la contraseña maestra unificada: **`Disjoya2026*`**
 
@@ -62,7 +80,7 @@ Todos los perfiles utilizan la contraseña maestra unificada: **`Disjoya2026*`**
 
 ---
 
-### 5. Parámetros Legales Laborales Integrados (Colombia 2026)
+### 6. Parámetros Legales Laborales Integrados (Colombia 2026)
 
 * **Jornada Ordinaria:** 42 horas semanales (Ley 2101 de 2021).
 * **Inicio de Jornada Nocturna:** 7:00 p.m. (Ley 2466 de 2025).
@@ -72,7 +90,7 @@ Todos los perfiles utilizan la contraseña maestra unificada: **`Disjoya2026*`**
 
 ---
 
-### 6. Infraestructura Técnica y Variables de Entorno
+### 7. Infraestructura Técnica y Variables de Entorno
 
 #### Supabase PostgreSQL
 * **Host:** `aws-0-us-east-2.pooler.supabase.com:6543`
@@ -82,22 +100,11 @@ Todos los perfiles utilizan la contraseña maestra unificada: **`Disjoya2026*`**
 
 #### Vercel Producción
 * **Project ID:** `prj_2wIG5BaHBHuH2R9LZH3GpWh8XAjJ`
-* **Variables de entorno activas en Vercel:**
-  * `DJY_DATABASE_URL`: Conexión directa a Supabase con pooler.
-  * `DJY_JWT_SECRET`: Llave de firma de tokens Bearer.
-  * `DJY_PEPPER_DISPOSITIVO`: Salting criptográfico para dispositivos móviles.
-  * `DJY_AES_KEY_B64`: Cifrado simétrico AES-256-GCM para coordenadas de auditoría.
-  * `DJY_ZONA_HORARIA`: `America/Bogota`.
-  * `DJY_NTP_HABILITADO`: `true`.
-  * `DJY_NTP_SERVIDOR`: `time.google.com`.
-  * `DJY_QR_TTL_SEGUNDOS`: `30`.
-  * `DJY_ENTORNO`: `produccion`.
+* **Variables de entorno activas en Vercel:** `DJY_DATABASE_URL`, `DJY_JWT_SECRET`, `DJY_PEPPER_DISPOSITIVO`, `DJY_AES_KEY_B64`, `DJY_ZONA_HORARIA`, `DJY_NTP_HABILITADO`, `DJY_NTP_SERVIDOR`, `DJY_QR_TTL_SEGUNDOS`, `DJY_ENTORNO`.
 
 ---
 
-### 7. Cómo reanudar el proyecto en cualquier momento
-
-Cuando quieras volver a trabajar en este proyecto:
+### 8. Cómo reanudar el proyecto en cualquier momento
 
 ```powershell
 # 1. Abrir terminal en la carpeta del proyecto
@@ -111,12 +118,7 @@ cd "c:\Users\Estudiante 08\Documents\Pedro_Noriega\Aplicaciones IA\Sistema de co
 
 # 4. Para subir cambios directamente a Vercel producción en 5 segundos
 python deploy_vercel.py
-
-# 5. Para sincronizar cambios con GitHub
-git add .
-git commit -m "feat: Nuevas mejoras"
-git push origin main
 ```
 
 Para continuar con el asistente IA en otra sesión, simplemente dile:  
-*"Continúa donde quedamos en el proyecto Disjoya"*, y leerá esta memoria automáticamente.
+*"Continúa donde quedamos en el proyecto Disjoya"*, y retomaremos de inmediato en la conexión del flujo de notificaciones y correo de Horas Extras.
